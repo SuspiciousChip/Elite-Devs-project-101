@@ -1,0 +1,1889 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Essential Space</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DotGothic16&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* =========================================================================
+   DESIGN TOKENS
+   Every value the UI uses lives here. Nothing below this block should
+   hard-code a color, space, radius, shadow, or duration.
+   ========================================================================= */
+:root{
+  /* Color — background & surfaces */
+  --bg:#0a0a0b;
+  --bg-secondary:#050506;
+  --surface:#141416;
+  --surface-elevated:#1c1c1f;
+
+  /* Color — text */
+  --text-primary:#f2f2f0;
+  --text-secondary:#9a9a97;
+  --text-muted:#5c5c59;
+
+  /* Color — accent & semantic */
+  --accent:#ff2a1f;
+  --accent-hover:#ff4438;
+  --accent-soft:rgba(255,42,31,0.14);
+  --accent-soft-strong:rgba(255,42,31,0.28);
+  --success:#4a9d6f;
+  --warning:#e0a030;
+  --danger:#ff2a1f;
+
+  /* Color — structure */
+  --border:#242426;
+  --divider:#1b1b1d;
+  --focus-ring:rgba(255,42,31,0.55);
+  --hover-overlay:rgba(255,255,255,0.04);
+  --selection:rgba(255,42,31,0.28);
+
+  /* Typography */
+  --font-display:'DotGothic16', monospace;
+  --font-body:'JetBrains Mono', monospace;
+  --text-xs:10px;
+  --text-sm:11.5px;
+  --text-base:12.5px;
+  --text-md:13.5px;
+  --text-lg:16px;
+  --text-xl:22px;
+  --text-display:26px;
+  --leading:1.55;
+  --tracking-label:0.14em;
+  --tracking-tight:0.01em;
+
+  /* Spacing scale */
+  --sp-1:4px; --sp-2:8px; --sp-3:12px; --sp-4:16px; --sp-5:20px;
+  --sp-6:24px; --sp-8:32px; --sp-10:40px; --sp-12:48px; --sp-16:64px;
+
+  /* Radius */
+  --r-sm:6px; --r-md:10px; --r-lg:14px; --r-xl:20px; --r-full:999px;
+
+  /* Shadow */
+  --shadow-subtle:0 1px 2px rgba(0,0,0,0.35);
+  --shadow-hover:0 6px 20px rgba(0,0,0,0.38);
+  --shadow-floating:0 16px 44px rgba(0,0,0,0.48);
+  --shadow-modal:0 24px 70px rgba(0,0,0,0.6);
+
+  /* Motion */
+  --ease:cubic-bezier(.4,0,.2,1);
+  --dur-fast:120ms;
+  --dur-normal:200ms;
+  --dur-slow:320ms;
+  --dur-theme:340ms;
+
+  /* Layout */
+  --rail-w:64px;
+  --sidebar-w-expanded:216px;
+}
+
+/* =========================================================================
+   RESET & BASE
+   ========================================================================= */
+*{box-sizing:border-box;}
+html,body{height:100%;}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text-primary);
+  font-family:var(--font-body);
+  font-size:var(--text-md);
+  letter-spacing:var(--tracking-tight);
+  -webkit-font-smoothing:antialiased;
+  transition:background-color var(--dur-theme) var(--ease), color var(--dur-theme) var(--ease);
+}
+button{font-family:inherit; color:inherit; background:none; border:none; cursor:pointer;}
+input,textarea{font-family:inherit; color:inherit;}
+::selection{ background:var(--selection); color:#fff; }
+::-webkit-scrollbar{width:8px; height:8px;}
+::-webkit-scrollbar-thumb{background:var(--border); border-radius:var(--r-full);}
+::-webkit-scrollbar-track{background:transparent;}
+:focus-visible{ outline:2px solid var(--focus-ring); outline-offset:2px; border-radius:var(--r-sm); }
+a{color:inherit;}
+@media (prefers-reduced-motion: reduce){
+  *{ animation-duration:0.001ms !important; transition-duration:0.001ms !important; }
+}
+
+/* =========================================================================
+   APP LAYOUT
+   ========================================================================= */
+.app{ display:flex; min-height:100vh; }
+
+.sidebar-rail{ width:var(--rail-w); flex-shrink:0; }
+
+.sidebar{
+  position:fixed; top:0; left:0; bottom:0;
+  width:var(--rail-w);
+  display:flex; flex-direction:column; align-items:center;
+  padding:var(--sp-5) 0 var(--sp-4);
+  background:var(--bg-secondary);
+  border-right:1px solid var(--divider);
+  z-index:40;
+  overflow:hidden;
+  transition:width var(--dur-normal) var(--ease), box-shadow var(--dur-normal) var(--ease);
+}
+.sidebar:hover, .sidebar:focus-within{
+  width:var(--sidebar-w-expanded);
+  box-shadow:var(--shadow-floating);
+}
+.sidebar-logo{
+  width:100%; display:flex; align-items:center; gap:var(--sp-3);
+  padding:0 var(--sp-4) var(--sp-5); margin-bottom:var(--sp-2);
+  border-bottom:1px solid var(--divider);
+}
+.logo-mark{
+  width:22px; height:22px; flex-shrink:0; border-radius:6px;
+  background:var(--accent); color:#fff;
+  display:flex; align-items:center; justify-content:center;
+  font-family:var(--font-display); font-size:12px;
+}
+.logo-word{
+  font-family:var(--font-display); font-size:13px; letter-spacing:0.14em;
+  color:var(--text-primary); text-transform:uppercase; white-space:nowrap;
+  opacity:0; transform:translateX(-4px);
+  transition:opacity var(--dur-normal) var(--ease) var(--dur-fast), transform var(--dur-normal) var(--ease) var(--dur-fast);
+}
+.sidebar:hover .logo-word, .sidebar:focus-within .logo-word{ opacity:1; transform:none; }
+
+.nav-group{ width:100%; display:flex; flex-direction:column; gap:var(--sp-1); padding:0 var(--sp-2); }
+.nav-spacer{ flex:1; }
+.nav-divider{ width:calc(100% - 16px); height:1px; background:var(--divider); margin:var(--sp-3) auto; }
+
+.nav-item{
+  width:100%; display:flex; align-items:center; gap:var(--sp-3);
+  height:40px; padding:0 12px; border-radius:var(--r-md);
+  color:var(--text-secondary);
+  transition:background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+  white-space:nowrap;
+}
+.nav-item:hover{ background:var(--hover-overlay); color:var(--text-primary); }
+.nav-item.active{ background:var(--accent); color:#fff; }
+.nav-item.active:hover{ background:var(--accent-hover); }
+.nav-item svg{ width:18px; height:18px; flex-shrink:0; stroke:currentColor; }
+.nav-item .nav-label{
+  font-size:var(--text-sm); letter-spacing:0.06em; text-transform:uppercase;
+  opacity:0; max-width:0; overflow:hidden;
+  transition:opacity var(--dur-normal) var(--ease) var(--dur-fast);
+}
+.sidebar:hover .nav-label, .sidebar:focus-within .nav-label{ opacity:1; max-width:140px; }
+
+.main{
+  flex:1; min-width:0; margin-left:var(--rail-w);
+  display:flex; flex-direction:column;
+  padding:var(--sp-8) var(--sp-10) var(--sp-6);
+  max-width:1180px;
+}
+
+/* ---- header: greeting / focus chip / clock ---- */
+.topbar{ display:flex; align-items:flex-start; justify-content:space-between; gap:var(--sp-6); margin-bottom:var(--sp-2); }
+.greeting-block{ flex:1; min-width:0; }
+.greeting{ font-size:var(--text-xl); font-weight:600; color:var(--text-primary); line-height:1.3; }
+.greeting-sub{ font-size:var(--text-base); color:var(--text-muted); margin-top:var(--sp-1); }
+
+.topbar-right{ display:flex; align-items:center; gap:var(--sp-4); flex-shrink:0; }
+
+.focus-chip{
+  display:flex; align-items:center; gap:var(--sp-2);
+  padding:8px 14px; border-radius:var(--r-full);
+  border:1px solid var(--border); color:var(--text-secondary);
+  font-size:var(--text-sm); letter-spacing:0.06em; text-transform:uppercase;
+  transition:border-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease);
+}
+.focus-chip:hover{ border-color:var(--accent); color:var(--text-primary); }
+.focus-chip svg{ width:13px; height:13px; stroke:currentColor; }
+.focus-chip.running{ border-color:var(--accent); background:var(--accent-soft); color:var(--text-primary); }
+
+.clock{ text-align:right; }
+.clock .time{ font-family:var(--font-display); font-size:var(--text-display); letter-spacing:0.06em; color:var(--text-primary); line-height:1; }
+.clock .date{ font-family:var(--font-display); font-size:var(--text-xs); letter-spacing:0.16em; color:var(--text-muted); margin-top:4px; text-transform:uppercase; }
+
+/* ---- search ---- */
+.search-wrap{ margin:var(--sp-6) 0 var(--sp-8); max-width:640px; }
+.search-bar{
+  display:flex; align-items:center; gap:var(--sp-3);
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--r-full);
+  padding:13px 20px;
+  transition:border-color var(--dur-normal) var(--ease), box-shadow var(--dur-normal) var(--ease);
+}
+.search-bar:focus-within{ border-color:var(--accent); box-shadow:0 0 0 4px var(--accent-soft); }
+.search-bar svg.search-icon{ width:15px; height:15px; stroke:var(--accent); flex-shrink:0; }
+.search-bar input{ flex:1; background:none; border:none; outline:none; font-size:var(--text-md); color:var(--text-primary); }
+.search-bar input::placeholder{ color:var(--text-muted); }
+.mic-search-btn{
+  width:26px; height:26px; border-radius:var(--r-full); flex-shrink:0;
+  display:flex; align-items:center; justify-content:center; color:var(--text-muted);
+  transition:all var(--dur-fast) var(--ease);
+}
+.mic-search-btn:hover{ background:var(--hover-overlay); color:var(--text-primary); }
+.mic-search-btn.listening{ background:var(--accent); color:#fff; animation:pulse 1.2s infinite; }
+.mic-search-btn svg{ width:14px; height:14px; stroke:currentColor; }
+@keyframes pulse{ 0%{box-shadow:0 0 0 0 var(--accent-soft-strong);} 70%{box-shadow:0 0 0 9px rgba(255,42,31,0);} 100%{box-shadow:0 0 0 0 rgba(255,42,31,0);} }
+
+/* =========================================================================
+   HOME — SECTIONED HIERARCHY
+   greeting -> search -> current work -> important -> up next -> recent
+   ========================================================================= */
+.section{ margin-bottom:var(--sp-8); animation:fadeUp .32s var(--ease); }
+@keyframes fadeUp{ from{ opacity:0; transform:translateY(6px);} to{ opacity:1; transform:none;} }
+.section-label{
+  font-size:var(--text-xs); letter-spacing:var(--tracking-label); text-transform:uppercase;
+  color:var(--text-muted); margin-bottom:var(--sp-3); font-weight:600;
+}
+
+.spotlight-card{
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--r-lg);
+  padding:var(--sp-5) var(--sp-6); cursor:pointer;
+  display:flex; align-items:center; justify-content:space-between; gap:var(--sp-4);
+  transition:transform var(--dur-normal) var(--ease), border-color var(--dur-normal) var(--ease), box-shadow var(--dur-normal) var(--ease);
+}
+.spotlight-card:hover{ transform:translateY(-2px); border-color:#38383a; box-shadow:var(--shadow-hover); }
+.spotlight-type{ font-size:var(--text-xs); letter-spacing:0.1em; text-transform:uppercase; color:var(--accent); margin-bottom:6px; }
+.spotlight-title{ font-size:var(--text-lg); font-weight:600; }
+.spotlight-snippet{ font-size:var(--text-base); color:var(--text-secondary); margin-top:4px; max-width:60ch; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.spotlight-arrow{ color:var(--text-muted); font-size:16px; flex-shrink:0; transition:transform var(--dur-fast) var(--ease); }
+.spotlight-card:hover .spotlight-arrow{ transform:translateX(3px); color:var(--text-primary); }
+
+.two-col{ display:grid; grid-template-columns:1fr 1fr; gap:var(--sp-4); }
+@media (max-width:760px){ .two-col{ grid-template-columns:1fr; } }
+
+.panel{
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--r-md);
+  overflow:hidden;
+}
+.panel-head{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:var(--sp-3) var(--sp-4); cursor:pointer;
+  border-bottom:1px solid var(--divider);
+  transition:background var(--dur-fast) var(--ease);
+}
+.panel-head:hover{ background:var(--hover-overlay); }
+.panel-head h2{ margin:0; font-size:var(--text-xs); letter-spacing:var(--tracking-label); text-transform:uppercase; color:var(--text-secondary); font-weight:600; }
+.panel-head .chev{ color:var(--text-muted); font-size:12px; transition:transform var(--dur-fast) var(--ease); }
+.panel-head:hover .chev{ transform:translateX(3px); }
+.panel-body{ padding:var(--sp-3); display:flex; flex-direction:column; gap:var(--sp-2); max-height:260px; overflow-y:auto; }
+
+.empty-hint{
+  color:var(--text-muted); font-size:var(--text-base); padding:var(--sp-6) var(--sp-3);
+  text-align:center; display:flex; flex-direction:column; gap:var(--sp-3); align-items:center;
+}
+.empty-hint button{
+  background:var(--accent-soft); color:var(--accent); border:1px solid var(--accent-soft-strong);
+  padding:7px 14px; border-radius:var(--r-md); font-size:var(--text-sm); letter-spacing:0.05em;
+  transition:background var(--dur-fast) var(--ease);
+}
+.empty-hint button:hover{ background:var(--accent-soft-strong); }
+
+/* voice rows */
+.voice-row{
+  display:flex; align-items:center; gap:var(--sp-3);
+  background:var(--surface-elevated); border:1px solid var(--divider); border-radius:var(--r-sm);
+  padding:var(--sp-2) var(--sp-3);
+  transition:border-color var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease);
+}
+.voice-row:hover{ border-color:var(--border); transform:translateX(1px); }
+.play-btn{
+  width:26px; height:26px; border-radius:var(--r-full); flex-shrink:0;
+  background:var(--border); display:flex; align-items:center; justify-content:center;
+  transition:background var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease);
+}
+.play-btn:hover{ background:var(--accent); }
+.play-btn:active{ transform:scale(0.9); }
+.play-btn svg{ width:11px; height:11px; stroke:currentColor; fill:currentColor; }
+.voice-meta{ flex:1; min-width:0; cursor:pointer; }
+.voice-title{ font-size:var(--text-base); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.voice-time{ font-size:var(--text-xs); color:var(--text-muted); margin-top:2px; }
+.voice-ai{ font-size:var(--text-xs); color:var(--accent); margin-top:2px; font-style:italic; }
+
+/* thumbs */
+.thumb-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:var(--sp-2); }
+.thumb{
+  position:relative; aspect-ratio:1/1; border-radius:var(--r-sm); overflow:hidden;
+  background-size:cover; background-position:center; border:1px solid var(--divider);
+  cursor:pointer; transition:transform var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease);
+}
+.thumb:hover{ transform:scale(1.03); border-color:var(--accent); }
+.thumb .thumb-tag{
+  position:absolute; bottom:0; left:0; right:0; padding:4px 6px;
+  font-size:9px; color:#fff; background:linear-gradient(0deg, rgba(0,0,0,0.75), transparent);
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+
+/* checklist rows */
+.check-row{
+  display:flex; align-items:flex-start; gap:var(--sp-2); padding:6px 4px;
+  cursor:pointer; border-radius:var(--r-sm); transition:background var(--dur-fast) var(--ease);
+}
+.check-row:hover{ background:var(--hover-overlay); }
+.checkbox{
+  width:15px; height:15px; border-radius:4px; border:1.5px solid var(--text-muted);
+  flex-shrink:0; margin-top:1px; display:flex; align-items:center; justify-content:center;
+  transition:all var(--dur-normal) var(--ease); background:transparent;
+}
+.checkbox svg{ width:9px; height:9px; stroke:#fff; stroke-width:3; opacity:0; transform:scale(0.5); transition:all var(--dur-fast) var(--ease); }
+.check-row.checked .checkbox{ background:var(--success); border-color:var(--success); }
+.check-row.checked .checkbox svg{ opacity:1; transform:scale(1); }
+.check-row span.item-text{ font-size:var(--text-base); transition:all var(--dur-normal) var(--ease); }
+.check-row.checked span.item-text{ color:var(--text-muted); text-decoration:line-through; }
+.checklist-title-mini{ font-size:var(--text-xs); color:var(--text-secondary); letter-spacing:0.05em; margin-bottom:4px; text-transform:uppercase; }
+
+.everything-else{ text-align:center; padding-top:var(--sp-2); }
+.everything-else button{
+  color:var(--text-muted); font-size:var(--text-sm); letter-spacing:0.05em;
+  padding:8px 4px; transition:color var(--dur-fast) var(--ease);
+}
+.everything-else button:hover{ color:var(--text-primary); }
+
+/* =========================================================================
+   LIST VIEWS (all-voice / all-visual / all-checklists / files / search)
+   ========================================================================= */
+.view-head{ display:flex; align-items:center; gap:var(--sp-3); margin-bottom:var(--sp-5); }
+.back-btn{
+  width:32px; height:32px; border-radius:var(--r-sm); background:var(--surface); border:1px solid var(--border);
+  color:var(--text-secondary); display:flex; align-items:center; justify-content:center;
+  transition:all var(--dur-fast) var(--ease);
+}
+.back-btn:hover{ color:var(--text-primary); border-color:#3a3a3a; }
+.back-btn svg{ width:15px; height:15px; stroke:currentColor; }
+.view-title{ font-size:var(--text-sm); letter-spacing:0.16em; text-transform:uppercase; color:var(--text-secondary); flex:1; }
+.new-btn{
+  background:var(--accent-soft); color:var(--accent); border:1px solid var(--accent-soft-strong);
+  padding:8px 14px; border-radius:var(--r-md); font-size:var(--text-sm); letter-spacing:0.05em;
+  display:flex; gap:6px; align-items:center; transition:background var(--dur-fast) var(--ease);
+}
+.new-btn:hover{ background:var(--accent-soft-strong); }
+.new-btn svg{ width:13px; height:13px; stroke:currentColor; }
+
+.list-col{ display:flex; flex-direction:column; gap:var(--sp-3); }
+.item-card{
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--r-md); padding:var(--sp-3) var(--sp-4);
+  display:flex; flex-direction:column; gap:var(--sp-2);
+  transition:border-color var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease);
+}
+.item-card:hover{ border-color:#38383a; }
+.item-card-head{ display:flex; align-items:center; gap:var(--sp-3); }
+.type-pill{
+  font-size:9px; letter-spacing:0.08em; text-transform:uppercase; padding:3px 8px; border-radius:var(--r-full);
+  background:var(--surface-elevated); color:var(--text-secondary); border:1px solid var(--divider); flex-shrink:0;
+}
+.item-card-title{ font-size:var(--text-base); flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; cursor:pointer; }
+.item-card-title:hover{ color:var(--accent); }
+.item-card-time{ font-size:var(--text-xs); color:var(--text-muted); flex-shrink:0; }
+.icon-btn-sm{
+  width:26px; height:26px; border-radius:var(--r-sm); color:var(--text-muted);
+  display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:all var(--dur-fast) var(--ease);
+}
+.icon-btn-sm:hover{ background:var(--hover-overlay); color:var(--accent); }
+.icon-btn-sm svg{ width:13px; height:13px; stroke:currentColor; }
+.item-card-body{ font-size:var(--text-base); color:var(--text-secondary); line-height:var(--leading); }
+.item-photos-row{ display:flex; gap:6px; flex-wrap:wrap; }
+.item-photos-row .mini-thumb{ width:52px; height:52px; border-radius:var(--r-sm); background-size:cover; background-position:center; border:1px solid var(--divider); cursor:pointer; }
+
+.visual-full-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:var(--sp-3); }
+.visual-full-item{
+  border:1px solid var(--border); border-radius:var(--r-md); overflow:hidden; background:var(--surface); cursor:pointer;
+  transition:border-color var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease);
+}
+.visual-full-item:hover{ border-color:var(--accent); transform:translateY(-2px); }
+.visual-full-item .img{ width:100%; aspect-ratio:4/3; background-size:cover; background-position:center; }
+.visual-full-item .cap{ padding:8px 9px; font-size:var(--text-xs); color:var(--text-secondary); line-height:1.4; max-height:52px; overflow:hidden; }
+
+.checklist-card{ background:var(--surface); border:1px solid var(--border); border-radius:var(--r-md); padding:var(--sp-4); }
+.checklist-card-head{ display:flex; align-items:center; gap:var(--sp-3); margin-bottom:var(--sp-2); }
+.checklist-card-head h3{ margin:0; font-size:var(--text-base); flex:1; }
+.checklist-progress{ font-size:var(--text-xs); color:var(--text-muted); }
+
+/* =========================================================================
+   SETTINGS & APPEARANCE
+   ========================================================================= */
+.settings-title{ font-size:var(--text-xl); font-weight:600; margin-bottom:var(--sp-1); }
+.settings-sub{ font-size:var(--text-base); color:var(--text-muted); margin-bottom:var(--sp-8); }
+.settings-section-title{ font-size:var(--text-xs); letter-spacing:var(--tracking-label); text-transform:uppercase; color:var(--text-muted); margin-bottom:var(--sp-4); }
+
+.theme-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:var(--sp-4); margin-bottom:var(--sp-8); }
+.theme-card{
+  border:1px solid var(--border); border-radius:var(--r-md); padding:var(--sp-3);
+  cursor:pointer; transition:transform var(--dur-normal) var(--ease), border-color var(--dur-normal) var(--ease), box-shadow var(--dur-normal) var(--ease);
+  background:var(--surface);
+}
+.theme-card:hover{ transform:translateY(-2px); box-shadow:var(--shadow-hover); border-color:#3a3a3a; }
+.theme-card.active{ border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-soft); }
+.theme-preview{ height:64px; border-radius:var(--r-sm); margin-bottom:var(--sp-3); position:relative; overflow:hidden; border:1px solid rgba(255,255,255,0.06); }
+.theme-preview .swatch-accent{ position:absolute; bottom:8px; left:8px; width:16px; height:16px; border-radius:var(--r-full); }
+.theme-preview .swatch-line{ position:absolute; top:10px; left:8px; right:8px; height:6px; border-radius:3px; opacity:0.5; }
+.theme-name{ font-size:var(--text-sm); letter-spacing:0.04em; }
+.theme-check{ float:right; color:var(--accent); font-size:12px; }
+
+.settings-list{ display:flex; flex-direction:column; }
+.settings-row{
+  display:flex; align-items:center; justify-content:space-between; gap:var(--sp-4);
+  padding:var(--sp-4) 2px; border-bottom:1px solid var(--divider);
+}
+.settings-row-label{ font-size:var(--text-md); }
+.settings-row-desc{ font-size:var(--text-sm); color:var(--text-muted); margin-top:2px; }
+.settings-row-value{ font-size:var(--text-sm); color:var(--text-muted); }
+.toggle{
+  width:38px; height:22px; border-radius:var(--r-full); background:var(--border); position:relative; flex-shrink:0;
+  transition:background var(--dur-normal) var(--ease);
+}
+.toggle::after{
+  content:''; position:absolute; top:2px; left:2px; width:18px; height:18px; border-radius:var(--r-full); background:#e8e8e6;
+  transition:transform var(--dur-normal) var(--ease);
+}
+.toggle.on{ background:var(--accent); }
+.toggle.on::after{ transform:translateX(16px); }
+
+/* =========================================================================
+   FOCUS MODE
+   ========================================================================= */
+.focus-overlay{
+  position:fixed; inset:0; background:rgba(0,0,0,0.55); backdrop-filter:blur(2px);
+  display:flex; align-items:center; justify-content:center; z-index:120;
+  animation:fadeIn var(--dur-normal) var(--ease);
+}
+@keyframes fadeIn{ from{opacity:0;} to{opacity:1;} }
+.focus-panel{
+  width:300px; background:var(--bg-secondary); border:1px solid var(--border); border-radius:var(--r-xl);
+  padding:var(--sp-8) var(--sp-6); display:flex; flex-direction:column; align-items:center; gap:var(--sp-5);
+  box-shadow:var(--shadow-modal); animation:slideUp var(--dur-normal) var(--ease);
+}
+@keyframes slideUp{ from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:none;} }
+.focus-mode-label{ font-size:var(--text-xs); letter-spacing:var(--tracking-label); text-transform:uppercase; color:var(--text-muted); }
+.focus-time{ font-family:var(--font-display); font-size:52px; letter-spacing:0.04em; color:var(--text-primary); }
+.focus-controls{ display:flex; align-items:center; gap:var(--sp-4); }
+.focus-start{
+  width:64px; height:64px; border-radius:var(--r-full); background:var(--accent); color:#fff;
+  display:flex; align-items:center; justify-content:center; box-shadow:0 6px 20px var(--accent-soft-strong);
+  transition:background var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease);
+}
+.focus-start:hover{ background:var(--accent-hover); transform:scale(1.04); }
+.focus-start:active{ transform:scale(0.96); }
+.focus-start svg{ width:22px; height:22px; stroke:currentColor; fill:currentColor; }
+.focus-reset{
+  font-size:var(--text-sm); color:var(--text-muted); letter-spacing:0.05em; text-transform:uppercase;
+  transition:color var(--dur-fast) var(--ease);
+}
+.focus-reset:hover{ color:var(--text-primary); }
+.focus-close{ position:absolute; top:14px; right:14px; width:28px; height:28px; border-radius:var(--r-sm); color:var(--text-muted); display:flex; align-items:center; justify-content:center; }
+.focus-close:hover{ background:var(--hover-overlay); color:var(--text-primary); }
+.focus-close svg{ width:14px; height:14px; stroke:currentColor; }
+.focus-panel{ position:relative; }
+
+/* =========================================================================
+   MODALS (note / voice / screenshot / checklist / detail)
+   ========================================================================= */
+.modal-overlay{
+  position:fixed; inset:0; background:rgba(0,0,0,0.6); backdrop-filter:blur(3px);
+  display:flex; align-items:center; justify-content:center; z-index:100;
+  animation:fadeIn var(--dur-fast) var(--ease);
+}
+.modal-box{
+  width:460px; max-width:92vw; max-height:86vh; overflow-y:auto;
+  background:var(--bg-secondary); border:1px solid var(--border); border-radius:var(--r-lg);
+  padding:var(--sp-6); animation:slideUp var(--dur-normal) var(--ease);
+}
+.modal-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:var(--sp-5); }
+.modal-head h3{ margin:0; font-size:var(--text-sm); letter-spacing:0.16em; text-transform:uppercase; }
+.modal-close{ width:26px; height:26px; border-radius:var(--r-sm); color:var(--text-muted); display:flex; align-items:center; justify-content:center; }
+.modal-close:hover{ background:var(--hover-overlay); color:var(--text-primary); }
+.modal-close svg{ width:14px; height:14px; stroke:currentColor; }
+
+.field{ margin-bottom:var(--sp-4); }
+.field-label{ font-size:var(--text-xs); letter-spacing:0.1em; color:var(--text-muted); text-transform:uppercase; margin-bottom:6px; display:block; }
+.text-input, .text-area{
+  width:100%; background:var(--surface); border:1px solid var(--border); border-radius:var(--r-sm);
+  padding:10px 12px; color:var(--text-primary); font-size:var(--text-md); transition:border-color var(--dur-fast) var(--ease);
+}
+.text-input:focus, .text-area:focus{ outline:none; border-color:var(--accent); }
+.text-area{ resize:vertical; min-height:80px; line-height:var(--leading); }
+
+.row-flex{ display:flex; gap:var(--sp-3); align-items:center; }
+.ghost-btn{
+  background:var(--surface); border:1px solid var(--border); color:var(--text-secondary);
+  padding:9px 14px; border-radius:var(--r-sm); font-size:var(--text-sm); letter-spacing:0.04em;
+  display:flex; align-items:center; gap:7px; transition:all var(--dur-fast) var(--ease);
+}
+.ghost-btn:hover{ border-color:#3a3a3a; color:var(--text-primary); }
+.ghost-btn svg{ width:14px; height:14px; stroke:currentColor; }
+.ghost-btn.rec-active{ background:var(--accent-soft); border-color:var(--accent); color:var(--accent); }
+
+.primary-btn{
+  background:var(--accent); border:none; color:#fff; padding:10px 18px; border-radius:var(--r-sm);
+  font-size:var(--text-sm); letter-spacing:0.05em; font-weight:600;
+  transition:background var(--dur-fast) var(--ease), opacity var(--dur-fast) var(--ease);
+}
+.primary-btn:hover{ background:var(--accent-hover); }
+.primary-btn:disabled{ opacity:0.4; cursor:not-allowed; }
+.modal-actions{ display:flex; justify-content:flex-end; gap:var(--sp-3); margin-top:var(--sp-2); }
+
+.photo-strip{ display:flex; gap:var(--sp-2); flex-wrap:wrap; margin-top:var(--sp-3); }
+.photo-chip{ position:relative; width:64px; height:64px; border-radius:var(--r-sm); overflow:hidden; background-size:cover; background-position:center; border:1px solid var(--divider); }
+.photo-chip .rm{ position:absolute; top:2px; right:2px; width:16px; height:16px; background:rgba(0,0,0,0.7); border-radius:4px; display:flex; align-items:center; justify-content:center; color:#fff; }
+.photo-chip .rm svg{ width:9px; height:9px; stroke:currentColor; }
+.photo-chip .cap-status{ position:absolute; inset:0; background:rgba(0,0,0,0.55); display:flex; align-items:center; justify-content:center; }
+.spinner{ width:14px; height:14px; border:2px solid rgba(255,255,255,0.25); border-top-color:#fff; border-radius:var(--r-full); animation:spin .7s linear infinite; }
+@keyframes spin{ to{ transform:rotate(360deg); } }
+
+.rec-timer{ font-family:var(--font-display); font-size:var(--text-lg); color:var(--accent); }
+.audio-preview{ width:100%; margin-top:var(--sp-2); filter:invert(1) grayscale(1) contrast(1.15); border-radius:var(--r-sm); }
+
+.capture-area{
+  width:100%; min-height:130px; border:1.5px dashed var(--border); border-radius:var(--r-md);
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:var(--sp-3);
+  background:var(--surface); position:relative; overflow:hidden;
+}
+.capture-area img{ width:100%; height:100%; object-fit:cover; position:absolute; inset:0; }
+.capture-hint{ font-size:var(--text-sm); color:var(--text-muted); }
+
+.item-modal-detail{ font-size:var(--text-base); color:var(--text-secondary); line-height:var(--leading); white-space:pre-wrap; }
+.lightbox-img{ width:100%; border-radius:var(--r-md); margin-bottom:var(--sp-3); max-height:340px; object-fit:contain; background:#000; }
+.checklist-editor-row{ display:flex; gap:var(--sp-2); align-items:center; margin-bottom:var(--sp-2); }
+
+.ai-summary-label{ font-size:var(--text-xs); color:var(--text-muted); text-transform:uppercase; letter-spacing:0.1em; margin:var(--sp-3) 0 6px; }
+.ai-summary-list{ list-style:none; display:flex; flex-direction:column; gap:5px; padding:0; margin:0; }
+.ai-summary-list li{ font-size:var(--text-base); color:var(--text-secondary); display:flex; gap:7px; }
+.ai-summary-list li::before{ content:"•"; color:var(--accent); }
+.ai-loading{ font-size:var(--text-sm); color:var(--accent); animation:pulse 1.4s ease-in-out infinite; }
+@keyframes pulseText{ 0%,100%{opacity:1;} 50%{opacity:.5;} }
+.ai-loading{ animation-name:pulseText; }
+
+.toast{
+  position:fixed; bottom:32px; left:50%; transform:translateX(-50%);
+  background:var(--surface-elevated); border:1px solid var(--border); color:var(--text-primary);
+  padding:11px 20px; border-radius:var(--r-md); font-size:var(--text-sm); z-index:200; animation:fadeIn var(--dur-fast) var(--ease);
+  box-shadow:var(--shadow-hover);
+}
+
+/* =========================================================================
+   RESPONSIVE
+   ========================================================================= */
+@media (max-width:900px){
+  .main{ padding:var(--sp-6) var(--sp-5); }
+  .home-grid{ grid-template-columns:1fr; }
+}
+@media (max-width:600px){
+  :root{ --rail-w:56px; --sidebar-w-expanded:190px; }
+  .main{ padding:var(--sp-5) var(--sp-4); }
+  .topbar{ flex-direction:column; gap:var(--sp-3); }
+  .clock{ text-align:left; }
+  .theme-grid{ grid-template-columns:repeat(2,1fr); }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="sidebar-rail" aria-hidden="true"></div>
+  <nav class="sidebar" id="sidebar" aria-label="Main navigation">
+    <div class="sidebar-logo">
+      <div class="logo-mark">E</div>
+      <div class="logo-word">Essential Space</div>
+    </div>
+    <div class="nav-group">
+      <button class="nav-item active" data-view="home" aria-label="Home">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5L12 3l9 7.5"/><path d="M5 9.5V20a1 1 0 001 1h4v-6h4v6h4a1 1 0 001-1V9.5"/></svg>
+        <span class="nav-label">Home</span>
+      </button>
+      <div class="nav-divider"></div>
+      <button class="nav-item" data-open="note" aria-label="Write a note">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        <span class="nav-label">New note</span>
+      </button>
+      <button class="nav-item" data-open="voice" aria-label="Record a voice note">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+        <span class="nav-label">Record voice</span>
+      </button>
+      <button class="nav-item" data-open="screenshot" aria-label="Capture a screenshot">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        <span class="nav-label">Screenshot</span>
+      </button>
+      <button class="nav-item" data-open="checklist" aria-label="Create a checklist">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="9" y1="6" x2="21" y2="6"/><line x1="9" y1="12" x2="21" y2="12"/><line x1="9" y1="18" x2="21" y2="18"/><path d="M3.5 6l1 1 2-2"/><path d="M3.5 12l1 1 2-2"/><path d="M3.5 18l1 1 2-2"/></svg>
+        <span class="nav-label">New checklist</span>
+      </button>
+      <div class="nav-divider"></div>
+      <button class="nav-item" data-view="files" aria-label="All files">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/></svg>
+        <span class="nav-label">All files</span>
+      </button>
+    </div>
+    <div class="nav-spacer"></div>
+    <div class="nav-group">
+      <button class="nav-item" data-view="settings" aria-label="Settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+        <span class="nav-label">Settings</span>
+      </button>
+    </div>
+  </nav>
+
+  <main class="main">
+    <header class="topbar">
+      <div class="greeting-block">
+        <div class="greeting" id="greeting-text">Good evening.</div>
+        <div class="greeting-sub" id="greeting-sub">Nothing scheduled right now.</div>
+      </div>
+      <div class="topbar-right">
+        <button class="focus-chip" id="focus-chip" aria-label="Start a focus session">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/></svg>
+          <span id="focus-chip-label">Focus</span>
+        </button>
+        <div class="clock">
+          <div class="time" id="clock-time">--:--</div>
+          <div class="date" id="clock-date">---</div>
+        </div>
+      </div>
+    </header>
+
+    <div class="search-wrap">
+      <div class="search-bar">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input id="search-input" type="text" placeholder="Search your mind..." autocomplete="off">
+        <button class="mic-search-btn" id="search-mic-btn" aria-label="Search by voice">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div id="view-container"></div>
+  </main>
+</div>
+
+<div id="modal-root"></div>
+<div id="focus-root"></div>
+<div id="toast-root"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ============ ICONS ============ */
+  const ICONS = {
+    close:'<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',
+    play:'<svg viewBox="0 0 24 24" fill="currentColor"><polygon points="6 3 20 12 6 21 6 3"/></svg>',
+    pause:'<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>',
+    trash:'<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>',
+    plus:'<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>',
+    check:'<svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',
+    back:'<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>',
+    image:'<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>',
+    mic:'<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>',
+    camera:'<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>',
+    stop:'<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>',
+    upload:'<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>',
+    reset:'<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>',
+  };
+
+  /* ============ STATE ============ */
+  const state = {
+    data: { entries: [], checklists: [] },
+    view: 'home',
+    prevView: 'home',
+    searchQuery: '',
+    playingId: null,
+    currentAudio: null,
+    modal: null,
+    draft: {},
+  };
+
+  const focusState = { running:false, seconds:25*60, mode:'work', handle:null };
+
+  const $ = sel => document.querySelector(sel);
+  const viewContainer = $('#view-container');
+  const modalRoot = $('#modal-root');
+  const focusRoot = $('#focus-root');
+
+  function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,8); }
+  function esc(str){
+    if(str===undefined||str===null) return '';
+    return String(str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  }
+  function fmtTime(iso){
+    const d = new Date(iso);
+    const days=['SUN','MON','TUE','WED','THU','FRI','SAT'];
+    const months=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+    const hh=String(d.getHours()).padStart(2,'0'), mm=String(d.getMinutes()).padStart(2,'0');
+    return `${days[d.getDay()]} ${months[d.getMonth()]} ${d.getDate()} · ${hh}:${mm}`;
+  }
+  function showToast(msg){
+    const el = document.createElement('div');
+    el.className='toast';
+    el.textContent = msg;
+    $('#toast-root').appendChild(el);
+    setTimeout(()=>el.remove(), 3200);
+  }
+
+  /* ============ STORAGE ============ */
+  async function loadData(){
+    try{
+      const res = await window.storage.get('essential-space-data', false);
+      if(res && res.value){
+        const parsed = JSON.parse(res.value);
+        state.data.entries = parsed.entries || [];
+        state.data.checklists = parsed.checklists || [];
+      }
+    }catch(e){ /* nothing saved yet */ }
+  }
+  async function saveData(){
+    try{ await window.storage.set('essential-space-data', JSON.stringify(state.data), false); return true; }
+    catch(e){ console.error('save failed', e); return false; }
+  }
+
+  /* ============ THEME ENGINE ============ */
+  const THEME_KEY = 'essential-space-theme';
+  const THEMES = [
+    { id:'nothing-red', name:'Nothing Red', bg:'#0a0a0b', bgSecondary:'#050506', surface:'#141416', surfaceEl:'#1c1c1f', border:'#242426', divider:'#1b1b1d', text:'#f2f2f0', textSec:'#9a9a97', textMuted:'#5c5c59', accent:'#ff2a1f', accentHover:'#ff4438' },
+    { id:'ocean-blue', name:'Ocean Blue', bg:'#070b12', bgSecondary:'#04070c', surface:'#101923', surfaceEl:'#182432', border:'#22303f', divider:'#192431', text:'#eef4fa', textSec:'#93a4b3', textMuted:'#546575', accent:'#2ea6ff', accentHover:'#57b8ff' },
+    { id:'matrix-green', name:'Matrix Green', bg:'#06090a', bgSecondary:'#040606', surface:'#0d1614', surfaceEl:'#131f1c', border:'#1f302b', divider:'#16211e', text:'#eaf5ee', textSec:'#8ea698', textMuted:'#526158', accent:'#23ff6b', accentHover:'#54ff8c' },
+    { id:'amber-terminal', name:'Amber Terminal', bg:'#0d0a05', bgSecondary:'#080602', surface:'#1a130a', surfaceEl:'#241a0e', border:'#3a2b16', divider:'#291e10', text:'#f6ecdd', textSec:'#af9c80', textMuted:'#6c5f4c', accent:'#ffb020', accentHover:'#ffc352' },
+    { id:'violet-neon', name:'Violet Neon', bg:'#0a0713', surfaceEl:'#20152f', bgSecondary:'#06040c', surface:'#170f26', border:'#332352', divider:'#221936', text:'#f1ecfa', textSec:'#a598b9', textMuted:'#635a75', accent:'#b455ff', accentHover:'#c47dff' },
+    { id:'paper-light', name:'Paper Light', bg:'#f4f2ee', bgSecondary:'#eae7e1', surface:'#ffffff', surfaceEl:'#f1efea', border:'#ddd8cf', divider:'#e6e2da', text:'#1a1917', textSec:'#5c584f', textMuted:'#8b8579', accent:'#d4432f', accentHover:'#b8371f' },
+  ];
+  let currentThemeId = THEMES[0].id;
+
+  function hexToRgba(hex, a){
+    const h = hex.replace('#','');
+    const r = parseInt(h.substring(0,2),16), g = parseInt(h.substring(2,4),16), b = parseInt(h.substring(4,6),16);
+    return `rgba(${r},${g},${b},${a})`;
+  }
+
+  function applyTheme(t, save){
+    currentThemeId = t.id;
+    const root = document.documentElement.style;
+    root.setProperty('--bg', t.bg);
+    root.setProperty('--bg-secondary', t.bgSecondary);
+    root.setProperty('--surface', t.surface);
+    root.setProperty('--surface-elevated', t.surfaceEl);
+    root.setProperty('--border', t.border);
+    root.setProperty('--divider', t.divider);
+    root.setProperty('--text-primary', t.text);
+    root.setProperty('--text-secondary', t.textSec);
+    root.setProperty('--text-muted', t.textMuted);
+    root.setProperty('--accent', t.accent);
+    root.setProperty('--accent-hover', t.accentHover);
+    root.setProperty('--accent-soft', hexToRgba(t.accent, 0.14));
+    root.setProperty('--accent-soft-strong', hexToRgba(t.accent, 0.28));
+    root.setProperty('--focus-ring', hexToRgba(t.accent, 0.55));
+    root.setProperty('--selection', hexToRgba(t.accent, 0.28));
+    if(state.view==='settings') renderSettings();
+    if(save){ window.storage.set(THEME_KEY, JSON.stringify(t.id), false).catch(()=>{}); }
+  }
+
+  async function loadTheme(){
+    try{
+      const res = await window.storage.get(THEME_KEY, false);
+      if(res && res.value){
+        const id = JSON.parse(res.value);
+        const t = THEMES.find(x=>x.id===id);
+        if(t){ applyTheme(t, false); return; }
+      }
+    }catch(e){ /* default theme */ }
+    applyTheme(THEMES[0], false);
+  }
+
+  /* ============ CLOCK & GREETING ============ */
+  function updateClock(){
+    const now = new Date();
+    const days=['SUN','MON','TUE','WED','THU','FRI','SAT'];
+    const months=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+    $('#clock-time').textContent = String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+    $('#clock-date').textContent = days[now.getDay()]+', '+months[now.getMonth()]+' '+now.getDate();
+  }
+  function updateGreeting(){
+    const h = new Date().getHours();
+    const word = h<5 ? 'Working late.' : h<12 ? 'Good morning.' : h<18 ? 'Good afternoon.' : 'Good evening.';
+    $('#greeting-text').textContent = word;
+    const entryCount = state.data.entries.length + state.data.checklists.length;
+    const openItems = state.data.checklists.reduce((n,c)=> n + c.items.filter(i=>!i.checked).length, 0);
+    $('#greeting-sub').textContent = openItems ? `${openItems} thing${openItems===1?'':'s'} still open.` : (entryCount ? 'Nothing scheduled right now.' : 'Nothing scheduled right now.');
+  }
+
+  /* ============ DATA HELPERS ============ */
+  function allEntries(){ return [...state.data.entries].sort((a,b)=> new Date(b.createdAt)-new Date(a.createdAt)); }
+  function allChecklists(){ return [...state.data.checklists].sort((a,b)=> new Date(b.createdAt)-new Date(a.createdAt)); }
+  function findEntry(id){ return state.data.entries.find(e=>e.id===id); }
+  function findChecklist(id){ return state.data.checklists.find(c=>c.id===id); }
+  function allPhotosFlat(){
+    const out=[];
+    allEntries().forEach(e=>{ (e.photos||[]).forEach(p=> out.push({ photo:p, entry:e })); });
+    return out;
+  }
+  function matchesEntry(e, q){
+    if(!q) return true;
+    q=q.toLowerCase();
+    if(e.title && e.title.toLowerCase().includes(q)) return true;
+    if(e.text && e.text.toLowerCase().includes(q)) return true;
+    if(e.photos && e.photos.some(p=>p.caption && p.caption.toLowerCase().includes(q))) return true;
+    if(e.summaryLines && e.summaryLines.some(l=>l.toLowerCase().includes(q))) return true;
+    return false;
+  }
+  function matchesChecklist(c, q){
+    if(!q) return true;
+    q=q.toLowerCase();
+    if(c.title && c.title.toLowerCase().includes(q)) return true;
+    return c.items.some(it=>it.text.toLowerCase().includes(q));
+  }
+
+  /* ============ ROUTER ============ */
+  function setView(v){
+    state.view = v;
+    document.querySelectorAll('.nav-item[data-view]').forEach(b=>{
+      b.classList.toggle('active', b.dataset.view===v);
+    });
+    render();
+  }
+
+  function render(){
+    if(state.view==='home') return renderHome();
+    if(state.view==='all-voice') return renderAllVoice();
+    if(state.view==='all-visual') return renderAllVisual();
+    if(state.view==='all-checklists') return renderAllChecklists();
+    if(state.view==='files') return renderFiles();
+    if(state.view==='search') return renderSearch();
+    if(state.view==='settings') return renderSettings();
+  }
+
+  /* ---------- HOME ---------- */
+  function renderHome(){
+    updateGreeting();
+    const entries = allEntries();
+    const checklists = allChecklists();
+    const continuing = entries[0];
+    const important = checklists.find(c=>c.items.some(i=>!i.checked)) || checklists[0];
+    const upNext = checklists.filter(c=> c.id !== (important && important.id)).slice(0,4);
+    const voiceEntries = entries.filter(e=>e.type==='voice').slice(0,4);
+    const photos = allPhotosFlat().slice(0,6);
+
+    let html = '';
+
+    if(continuing){
+      const kindLabel = {note:'Note', voice:'Voice note', screenshot:'Screenshot'}[continuing.type];
+      const snippet = continuing.text || (continuing.photos && continuing.photos[0] && continuing.photos[0].caption) || (continuing.summaryLines && continuing.summaryLines[0]) || 'Open to see more';
+      html += `
+        <section class="section">
+          <div class="section-label">Continue working</div>
+          <div class="spotlight-card" data-detail="${continuing.id}">
+            <div style="min-width:0;">
+              <div class="spotlight-type">${kindLabel}</div>
+              <div class="spotlight-title">${esc(continuing.title||'Untitled')}</div>
+              <div class="spotlight-snippet">${esc(snippet)}</div>
+            </div>
+            <span class="spotlight-arrow">→</span>
+          </div>
+        </section>`;
+    }
+
+    if(important || upNext.length){
+      html += `<section class="section"><div class="two-col">`;
+      html += `
+        <div>
+          <div class="section-label">Important</div>
+          <div class="panel">
+            <div class="panel-body" style="max-height:none;">
+              ${important ? checklistPreviewHtml(important) : emptyHint('Nothing marked important','checklist')}
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="section-label">Up next</div>
+          <div class="panel">
+            <div class="panel-body" style="max-height:none;">
+              ${upNext.length ? upNext.map(c=>`
+                <div class="check-row" data-goto-checklist="${c.id}">
+                  <span class="checkbox"></span>
+                  <span class="item-text">${esc(c.title)} · ${c.items.filter(i=>i.checked).length}/${c.items.length}</span>
+                </div>`).join('') : emptyHint('You are all caught up','checklist')}
+            </div>
+          </div>
+        </div>`;
+      html += `</div></section>`;
+    }
+
+    html += `
+      <section class="section">
+        <div class="section-label">Recent</div>
+        <div class="two-col">
+          <div class="panel">
+            <header class="panel-head" data-goto="all-voice"><h2>Voice notes</h2><span class="chev">→</span></header>
+            <div class="panel-body">
+              ${voiceEntries.length ? voiceEntries.map(voiceRowHtml).join('') : emptyHint('No voice notes yet','voice')}
+            </div>
+          </div>
+          <div class="panel">
+            <header class="panel-head" data-goto="all-visual"><h2>Visual feed</h2><span class="chev">→</span></header>
+            <div class="panel-body">
+              ${photos.length ? `<div class="thumb-grid">${photos.map(p=>thumbHtml(p.photo,p.entry)).join('')}</div>` : emptyHint('No photos yet','screenshot')}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="everything-else">
+        <button data-goto="files">View everything else →</button>
+      </div>
+    `;
+
+    viewContainer.innerHTML = html;
+    bindHomeEvents();
+  }
+
+  function emptyHint(msg, openType){
+    return `<div class="empty-hint"><span>${esc(msg)}</span><button data-open="${openType}">+ Add one</button></div>`;
+  }
+  function voiceRowHtml(e){
+    const isPlaying = state.playingId===e.id;
+    const ai = e.summaryLines && e.summaryLines[0] ? `<div class="voice-ai">${esc(e.summaryLines[0])}</div>` : '';
+    return `
+      <div class="voice-row" data-entry-row="${e.id}">
+        <button class="play-btn" data-play="${e.id}" aria-label="Play voice note">${isPlaying?ICONS.pause:ICONS.play}</button>
+        <div class="voice-meta" data-detail="${e.id}">
+          <div class="voice-title">${esc(e.title || 'Untitled voice note')}</div>
+          <div class="voice-time">${fmtTime(e.createdAt)}</div>
+          ${ai}
+        </div>
+      </div>`;
+  }
+  function thumbHtml(photo, entry){
+    return `<div class="thumb" style="background-image:url('${photo.dataUrl}')" data-detail="${entry.id}">
+      <div class="thumb-tag">${esc((photo.caption||'').slice(0,40))}</div>
+    </div>`;
+  }
+  function checklistPreviewHtml(c){
+    const items = c.items.slice(0,6);
+    const done = c.items.filter(i=>i.checked).length;
+    return `
+      <div class="checklist-title-mini">${esc(c.title)} · ${done}/${c.items.length}</div>
+      ${items.map(it=>checkRowHtml(c.id, it)).join('')}
+    `;
+  }
+  function checkRowHtml(checklistId, item){
+    return `
+      <label class="check-row ${item.checked?'checked':''}" data-toggle-item="${checklistId}|${item.id}">
+        <span class="checkbox">${ICONS.check}</span>
+        <span class="item-text">${esc(item.text)}</span>
+      </label>`;
+  }
+
+  function bindHomeEvents(){
+    viewContainer.querySelectorAll('[data-goto]').forEach(el=>{
+      el.addEventListener('click', ()=> setView(el.dataset.goto));
+    });
+    viewContainer.querySelectorAll('[data-goto-checklist]').forEach(el=>{
+      el.addEventListener('click', ()=> setView('all-checklists'));
+    });
+    bindCommonListItemEvents();
+  }
+
+  function bindCommonListItemEvents(){
+    viewContainer.querySelectorAll('[data-play]').forEach(el=>{
+      el.addEventListener('click', e=>{ e.stopPropagation(); togglePlay(el.dataset.play); });
+    });
+    viewContainer.querySelectorAll('[data-detail]').forEach(el=>{
+      el.addEventListener('click', ()=> openDetailModal(el.dataset.detail));
+    });
+    viewContainer.querySelectorAll('[data-toggle-item]').forEach(el=>{
+      el.addEventListener('click', ()=>{
+        const [clId, itId] = el.dataset.toggleItem.split('|');
+        toggleChecklistItem(clId, itId);
+      });
+    });
+    viewContainer.querySelectorAll('[data-open]').forEach(el=>{
+      el.addEventListener('click', ()=> openCreateModal(el.dataset.open));
+    });
+    viewContainer.querySelectorAll('[data-delete-entry]').forEach(el=>{
+      el.addEventListener('click', e=>{ e.stopPropagation(); deleteEntry(el.dataset.deleteEntry); });
+    });
+    viewContainer.querySelectorAll('[data-delete-checklist]').forEach(el=>{
+      el.addEventListener('click', e=>{ e.stopPropagation(); deleteChecklist(el.dataset.deleteChecklist); });
+    });
+  }
+
+  /* ---------- ALL VOICE ---------- */
+  function renderAllVoice(){
+    const q = state.searchQuery;
+    const items = allEntries().filter(e=>e.type==='voice').filter(e=>matchesEntry(e,q));
+    viewContainer.innerHTML = `
+      <div class="view-head">
+        <button class="back-btn" data-back aria-label="Back">${ICONS.back}</button>
+        <div class="view-title">All voice notes</div>
+        <button class="new-btn" data-open="voice">${ICONS.plus} New</button>
+      </div>
+      <div class="list-col">
+        ${items.length ? items.map(voiceCardHtml).join('') : `<div class="empty-hint">${esc(q?'No matches found':'No voice notes yet')}</div>`}
+      </div>
+    `;
+    bindListViewEvents();
+  }
+  function voiceCardHtml(e){
+    const isPlaying = state.playingId===e.id;
+    const ai = e.summarizing
+      ? `<div class="ai-loading">✨ Generating AI summary…</div>`
+      : (e.summaryLines && e.summaryLines.length
+        ? `<div class="ai-summary-label">AI summary</div><ul class="ai-summary-list">${e.summaryLines.map(l=>`<li>${esc(l)}</li>`).join('')}</ul>`
+        : (e.transcript ? `<div class="icon-btn-sm" style="width:auto;height:auto;padding:4px 8px;color:var(--accent);" data-resummarize="${e.id}">✨ Generate AI summary</div>` : ''));
+    return `
+      <div class="item-card">
+        <div class="item-card-head">
+          <button class="play-btn" data-play="${e.id}" aria-label="Play">${isPlaying?ICONS.pause:ICONS.play}</button>
+          <div class="item-card-title" data-detail="${e.id}">${esc(e.title||'Untitled voice note')}</div>
+          <div class="item-card-time">${fmtTime(e.createdAt)}</div>
+          <button class="icon-btn-sm" data-delete-entry="${e.id}" aria-label="Delete">${ICONS.trash}</button>
+        </div>
+        ${e.text ? `<div class="item-card-body">${esc(e.text)}</div>` : ''}
+        ${ai}
+        ${(e.photos&&e.photos.length) ? `<div class="item-photos-row">${e.photos.map(p=>`<div class="mini-thumb" style="background-image:url('${p.dataUrl}')" data-detail="${e.id}"></div>`).join('')}</div>` : ''}
+      </div>`;
+  }
+
+  /* ---------- ALL VISUAL ---------- */
+  function renderAllVisual(){
+    const q = state.searchQuery;
+    const photos = allPhotosFlat().filter(p => !q || (p.photo.caption||'').toLowerCase().includes(q.toLowerCase()) || matchesEntry(p.entry,q));
+    viewContainer.innerHTML = `
+      <div class="view-head">
+        <button class="back-btn" data-back aria-label="Back">${ICONS.back}</button>
+        <div class="view-title">Visual feed</div>
+        <button class="new-btn" data-open="screenshot">${ICONS.plus} New</button>
+      </div>
+      <div class="visual-full-grid">
+        ${photos.length ? photos.map(p=>`
+          <div class="visual-full-item" data-detail="${p.entry.id}">
+            <div class="img" style="background-image:url('${p.photo.dataUrl}')"></div>
+            <div class="cap">${esc(p.photo.caption||'')}</div>
+          </div>`).join('') : `<div class="empty-hint">${esc(q?'No matches found':'No photos yet')}</div>`}
+      </div>
+    `;
+    bindListViewEvents();
+  }
+
+  /* ---------- ALL CHECKLISTS ---------- */
+  function renderAllChecklists(){
+    const q = state.searchQuery;
+    const lists = allChecklists().filter(c=>matchesChecklist(c,q));
+    viewContainer.innerHTML = `
+      <div class="view-head">
+        <button class="back-btn" data-back aria-label="Back">${ICONS.back}</button>
+        <div class="view-title">Action steps</div>
+        <button class="new-btn" data-open="checklist">${ICONS.plus} New</button>
+      </div>
+      <div class="list-col">
+        ${lists.length ? lists.map(c=>`
+          <div class="checklist-card">
+            <div class="checklist-card-head">
+              <h3>${esc(c.title)}</h3>
+              <span class="checklist-progress">${c.items.filter(i=>i.checked).length}/${c.items.length}</span>
+              <button class="icon-btn-sm" data-delete-checklist="${c.id}" aria-label="Delete checklist">${ICONS.trash}</button>
+            </div>
+            ${c.items.map(it=>checkRowHtml(c.id,it)).join('')}
+          </div>`).join('') : `<div class="empty-hint">${esc(q?'No matches found':'No checklists yet')}</div>`}
+      </div>
+    `;
+    bindListViewEvents();
+  }
+
+  /* ---------- FILES ---------- */
+  function renderFiles(){
+    const q = state.searchQuery;
+    const entries = allEntries().filter(e=>matchesEntry(e,q)).map(e=>({...e,kind:e.type}));
+    const checklists = allChecklists().filter(c=>matchesChecklist(c,q)).map(c=>({...c,kind:'checklist'}));
+    const items = [...entries, ...checklists].sort((a,b)=> new Date(b.createdAt)-new Date(a.createdAt));
+    viewContainer.innerHTML = `
+      <div class="view-head">
+        <button class="back-btn" data-back aria-label="Back">${ICONS.back}</button>
+        <div class="view-title">All files</div>
+      </div>
+      <div class="list-col">
+        ${items.length ? items.map(fileRowHtml).join('') : `<div class="empty-hint">${esc(q?'No matches found':'Nothing saved yet')}</div>`}
+      </div>
+    `;
+    bindListViewEvents();
+  }
+  function fileRowHtml(item){
+    const kindLabel = {note:'Note', voice:'Voice', screenshot:'Screenshot', checklist:'Checklist'}[item.kind];
+    const snippet = item.kind==='checklist'
+      ? `${item.items.filter(i=>i.checked).length}/${item.items.length} steps complete`
+      : (item.text || (item.photos&&item.photos[0]&&item.photos[0].caption) || (item.summaryLines&&item.summaryLines[0]) || '');
+    const detailAttr = item.kind==='checklist' ? `data-goto-checklist="${item.id}"` : `data-detail="${item.id}"`;
+    return `
+      <div class="item-card">
+        <div class="item-card-head">
+          <span class="type-pill">${kindLabel}</span>
+          <div class="item-card-title" ${detailAttr}>${esc(item.title||'Untitled')}</div>
+          <div class="item-card-time">${fmtTime(item.createdAt)}</div>
+          ${item.kind==='checklist' ? `<button class="icon-btn-sm" data-delete-checklist="${item.id}" aria-label="Delete">${ICONS.trash}</button>` : `<button class="icon-btn-sm" data-delete-entry="${item.id}" aria-label="Delete">${ICONS.trash}</button>`}
+        </div>
+        ${snippet ? `<div class="item-card-body">${esc(snippet.slice(0,140))}</div>` : ''}
+      </div>`;
+  }
+
+  /* ---------- SEARCH ---------- */
+  function renderSearch(){
+    const q = state.searchQuery;
+    const entries = allEntries().filter(e=>matchesEntry(e,q)).map(e=>({...e,kind:e.type}));
+    const checklists = allChecklists().filter(c=>matchesChecklist(c,q)).map(c=>({...c,kind:'checklist'}));
+    const items = [...entries, ...checklists].sort((a,b)=> new Date(b.createdAt)-new Date(a.createdAt));
+    viewContainer.innerHTML = `
+      <div class="view-head">
+        <button class="back-btn" data-back aria-label="Back">${ICONS.back}</button>
+        <div class="view-title">Results for "${esc(q)}"</div>
+      </div>
+      <div class="list-col">
+        ${items.length ? items.map(fileRowHtml).join('') : `<div class="empty-hint">Nothing in your mind matches that yet</div>`}
+      </div>
+    `;
+    bindListViewEvents();
+  }
+
+  function bindListViewEvents(){
+    bindCommonListItemEvents();
+    const back = viewContainer.querySelector('[data-back]');
+    if(back) back.addEventListener('click', ()=>{
+      $('#search-input').value='';
+      state.searchQuery='';
+      setView(state.prevView && state.prevView!=='search' ? state.prevView : 'home');
+    });
+    viewContainer.querySelectorAll('[data-goto-checklist]').forEach(el=>{
+      el.addEventListener('click', ()=>{ state.prevView = state.view; setView('all-checklists'); });
+    });
+    viewContainer.querySelectorAll('[data-resummarize]').forEach(el=>{
+      el.addEventListener('click', ()=>{
+        const it = findEntry(el.dataset.resummarize);
+        if(it) generateVoiceSummary(it);
+      });
+    });
+  }
+
+  /* ---------- SETTINGS ---------- */
+  function renderSettings(){
+    viewContainer.innerHTML = `
+      <div class="settings-title">Settings</div>
+      <div class="settings-sub">Make this space feel like yours.</div>
+
+      <div class="settings-section-title">Appearance</div>
+      <div class="theme-grid" id="theme-grid"></div>
+
+      <div class="settings-section-title">General</div>
+      <div class="settings-list">
+        <div class="settings-row">
+          <div>
+            <div class="settings-row-label">Storage</div>
+            <div class="settings-row-desc">Notes, voice recordings and screenshots saved on this device</div>
+          </div>
+          <div class="settings-row-value">${state.data.entries.length + state.data.checklists.length} items</div>
+        </div>
+        <div class="settings-row">
+          <div>
+            <div class="settings-row-label">AI summaries</div>
+            <div class="settings-row-desc">Automatically summarize voice notes and screenshots</div>
+          </div>
+          <div class="toggle on" id="ai-toggle"></div>
+        </div>
+        <div class="settings-row">
+          <div>
+            <div class="settings-row-label">Reduce motion</div>
+            <div class="settings-row-desc">Minimize interface animation</div>
+          </div>
+          <div class="toggle" id="motion-toggle"></div>
+        </div>
+      </div>
+    `;
+    renderThemeGrid();
+    const back = null;
+    $('#ai-toggle').addEventListener('click', e=> e.currentTarget.classList.toggle('on'));
+    $('#motion-toggle').addEventListener('click', e=>{
+      e.currentTarget.classList.toggle('on');
+      document.body.style.setProperty('--dur-fast', e.currentTarget.classList.contains('on') ? '0ms' : '120ms');
+      document.body.style.setProperty('--dur-normal', e.currentTarget.classList.contains('on') ? '0ms' : '200ms');
+      document.body.style.setProperty('--dur-slow', e.currentTarget.classList.contains('on') ? '0ms' : '320ms');
+    });
+  }
+  function renderThemeGrid(){
+    const grid = $('#theme-grid');
+    if(!grid) return;
+    grid.innerHTML = THEMES.map(t => `
+      <div class="theme-card ${t.id===currentThemeId?'active':''}" data-theme="${t.id}">
+        <div class="theme-preview" style="background:${t.bg};">
+          <div class="swatch-line" style="background:${t.textSec};"></div>
+          <div class="swatch-accent" style="background:${t.accent};"></div>
+        </div>
+        <div class="theme-name">${esc(t.name)}${t.id===currentThemeId?`<span class="theme-check">${ICONS.check}</span>`:''}</div>
+      </div>
+    `).join('');
+    grid.querySelectorAll('[data-theme]').forEach(el=>{
+      el.addEventListener('click', ()=>{
+        const t = THEMES.find(x=>x.id===el.dataset.theme);
+        if(t) applyTheme(t, true);
+      });
+    });
+  }
+
+  /* ============ AUDIO PLAYBACK ============ */
+  function togglePlay(id){
+    const entry = findEntry(id);
+    if(!entry || !entry.audio){ showToast('No audio for this note'); return; }
+    if(state.currentAudio){ state.currentAudio.pause(); state.currentAudio=null; }
+    if(state.playingId===id){ state.playingId=null; render(); return; }
+    const audio = new Audio(entry.audio);
+    audio.play().catch(()=>showToast('Could not play audio'));
+    state.currentAudio = audio;
+    state.playingId = id;
+    audio.onended = ()=>{ state.playingId=null; render(); };
+    render();
+  }
+
+  /* ============ CHECKLIST MUTATIONS ============ */
+  async function toggleChecklistItem(checklistId, itemId){
+    const c = findChecklist(checklistId);
+    if(!c) return;
+    const item = c.items.find(i=>i.id===itemId);
+    if(!item) return;
+    item.checked = !item.checked;
+    render();
+    await saveData();
+  }
+  async function deleteEntry(id){
+    state.data.entries = state.data.entries.filter(e=>e.id!==id);
+    await saveData();
+    closeModal();
+    render();
+  }
+  async function deleteChecklist(id){
+    state.data.checklists = state.data.checklists.filter(c=>c.id!==id);
+    await saveData();
+    closeModal();
+    render();
+  }
+
+  /* ============ DETAIL MODAL ============ */
+  function openDetailModal(entryId){
+    const e = findEntry(entryId);
+    if(!e) return;
+    const kindLabel = {note:'Note', voice:'Voice note', screenshot:'Screenshot'}[e.type];
+    const aiBlock = e.summarizing
+      ? `<div class="ai-loading">✨ Generating AI summary…</div>`
+      : (e.summaryLines && e.summaryLines.length
+        ? `<div class="ai-summary-label">AI summary</div><ul class="ai-summary-list">${e.summaryLines.map(l=>`<li>${esc(l)}</li>`).join('')}</ul>`
+        : (e.transcript ? `<div class="icon-btn-sm" style="width:auto;height:auto;padding:4px 8px;color:var(--accent);" data-resummarize="${e.id}">✨ Generate AI summary</div>` : ''));
+    modalRoot.innerHTML = `
+      <div class="modal-overlay" data-overlay-close role="dialog" aria-modal="true">
+        <div class="modal-box">
+          <div class="modal-head"><h3>${kindLabel}</h3><button class="modal-close" data-close aria-label="Close">${ICONS.close}</button></div>
+          ${e.photos && e.photos.length ? e.photos.map(p=>`
+            <img class="lightbox-img" src="${p.dataUrl}">
+            <div class="item-modal-detail" style="margin-bottom:12px;color:var(--text-muted);font-style:italic;">${esc(p.caption||'')}</div>
+          `).join('') : ''}
+          ${e.audio ? `<audio class="audio-preview" controls src="${e.audio}"></audio>` : ''}
+          <div style="margin-top:10px;">
+            <div class="field-label">${esc(e.title||'Untitled')}</div>
+            <div class="item-modal-detail">${esc(e.text||'')}</div>
+            ${aiBlock}
+            <div class="voice-time" style="margin-top:10px;">${fmtTime(e.createdAt)}</div>
+          </div>
+          <div class="modal-actions">
+            <button class="ghost-btn" data-delete-entry="${e.id}">${ICONS.trash} Delete</button>
+          </div>
+        </div>
+      </div>
+    `;
+    bindModalCommon();
+    modalRoot.querySelector('[data-delete-entry]').addEventListener('click', ()=>deleteEntry(e.id));
+    const rs = modalRoot.querySelector('[data-resummarize]');
+    if(rs) rs.addEventListener('click', ()=> generateVoiceSummary(e));
+  }
+
+  function bindModalCommon(){
+    modalRoot.querySelectorAll('[data-close]').forEach(el=>el.addEventListener('click', closeModal));
+    const overlay = modalRoot.querySelector('[data-overlay-close]');
+    if(overlay) overlay.addEventListener('click', e=>{ if(e.target===overlay) closeModal(); });
+  }
+  function closeModal(){
+    stopAnyMediaStreams();
+    modalRoot.innerHTML='';
+    state.modal=null;
+    state.draft={};
+  }
+  function stopAnyMediaStreams(){
+    if(state.draft.recordingStream){ state.draft.recordingStream.getTracks().forEach(t=>t.stop()); }
+    if(state.draft.recTimerHandle) clearInterval(state.draft.recTimerHandle);
+  }
+
+  /* ============ CREATE MODALS ============ */
+  function openCreateModal(type){
+    state.modal = type;
+    state.draft = { photos: [], id: uid() };
+    if(type==='note') renderNoteModal();
+    if(type==='voice') renderVoiceModal();
+    if(type==='screenshot') renderScreenshotModal();
+    if(type==='checklist') renderChecklistModal();
+  }
+
+  function photoStripHtml(){
+    return `<div class="photo-strip">${state.draft.photos.map(p=>`
+      <div class="photo-chip" style="background-image:url('${p.dataUrl}')">
+        ${p.analyzing ? `<div class="cap-status"><div class="spinner"></div></div>` : ''}
+        <div class="rm" data-remove-photo="${p.id}">${ICONS.close}</div>
+      </div>`).join('')}</div>`;
+  }
+  function anyPhotoAnalyzing(){ return state.draft.photos.some(p=>p.analyzing); }
+  function bindPhotoStripEvents(rerender){
+    modalRoot.querySelectorAll('[data-remove-photo]').forEach(el=>{
+      el.addEventListener('click', ()=>{
+        state.draft.photos = state.draft.photos.filter(p=>p.id!==el.dataset.removePhoto);
+        rerender();
+      });
+    });
+  }
+  function addPhotoFromFile(file, rerender){
+    const reader = new FileReader();
+    reader.onload = async ()=>{
+      const photo = { id: uid(), dataUrl: reader.result, caption:'', analyzing:true };
+      state.draft.photos.push(photo);
+      rerender();
+      const caption = await generateCaption(reader.result);
+      photo.caption = caption;
+      photo.analyzing = false;
+      rerender();
+    };
+    reader.readAsDataURL(file);
+  }
+
+  /* ============ AI: IMAGE CAPTIONS & VOICE SUMMARIES ============ */
+  async function callClaude(contentBlocks, maxTokens){
+    const res = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-6",
+        max_tokens: maxTokens || 300,
+        messages: [{ role: "user", content: contentBlocks }],
+      })
+    });
+    if(!res.ok) throw new Error('AI request failed');
+    const data = await res.json();
+    return (data.content || []).filter(b=>b.type==='text').map(b=>b.text).join('\n');
+  }
+
+  async function generateCaption(dataUrl){
+    try{
+      const match = dataUrl.match(/^data:(image\/[a-zA-Z+.-]+);base64,(.*)$/);
+      if(!match) return 'Summary unavailable';
+      const text = await callClaude([
+        { type:'image', source:{ type:'base64', media_type:match[1], data:match[2] } },
+        { type:'text', text:'In one short plain sentence (under 20 words), describe what is shown in this image so it can be found later by a search engine. Respond with only that sentence, nothing else.' }
+      ], 1000);
+      return text.trim() || 'Summary unavailable';
+    }catch(e){
+      console.error('caption generation failed', e);
+      return 'Summary unavailable';
+    }
+  }
+
+  async function summarizeTranscript(transcript){
+    const text = await callClaude([
+      { type:'text', text:`Summarize this voice note transcript into 2-4 short bullet points capturing the key ideas and any action items. One bullet per line, plain text, no dashes or asterisks, no preamble.\n\nTranscript:\n"""${transcript}"""` }
+    ], 300);
+    return text.split('\n').map(s=>s.replace(/^[-*•\d.\)]+\s*/,'').trim()).filter(Boolean).slice(0,5);
+  }
+
+  async function generateVoiceSummary(entry){
+    entry.summarizing = true;
+    render();
+    try{
+      entry.summaryLines = (entry.transcript && entry.transcript.trim())
+        ? await summarizeTranscript(entry.transcript)
+        : ['No speech detected — nothing to summarize.'];
+    }catch(e){
+      entry.summaryLines = ['AI summary failed — check your connection and try again.'];
+    }
+    entry.summarizing = false;
+    await saveData();
+    render();
+  }
+
+  /* ---- NOTE MODAL ---- */
+  function renderNoteModal(){
+    modalRoot.innerHTML = `
+      <div class="modal-overlay" data-overlay-close role="dialog" aria-modal="true">
+        <div class="modal-box">
+          <div class="modal-head"><h3>Write a note</h3><button class="modal-close" data-close aria-label="Close">${ICONS.close}</button></div>
+          <div class="field"><label class="field-label">Title</label><input class="text-input" id="note-title" placeholder="Give it a name..."></div>
+          <div class="field"><label class="field-label">Note</label><textarea class="text-area" id="note-text" placeholder="Write what's on your mind..."></textarea></div>
+          <div class="field">
+            <label class="field-label">Photo</label>
+            <button class="ghost-btn" id="note-add-photo">${ICONS.image} Add photo</button>
+            <input type="file" accept="image/*" id="note-photo-input" style="display:none">
+            ${photoStripHtml()}
+          </div>
+          <div class="modal-actions">
+            <button class="ghost-btn" data-close>Cancel</button>
+            <button class="primary-btn" id="note-save" ${anyPhotoAnalyzing()?'disabled':''}>Save note</button>
+          </div>
+        </div>
+      </div>
+    `;
+    bindModalCommon();
+    bindPhotoStripEvents(renderNoteModal);
+    $('#note-add-photo').addEventListener('click', ()=> $('#note-photo-input').click());
+    $('#note-photo-input').addEventListener('change', e=>{
+      if(e.target.files[0]) addPhotoFromFile(e.target.files[0], renderNoteModal);
+    });
+    $('#note-save').addEventListener('click', async ()=>{
+      const title = $('#note-title').value.trim();
+      const text = $('#note-text').value.trim();
+      if(!title && !text && !state.draft.photos.length){ showToast('Add some content first'); return; }
+      const entry = { id: state.draft.id, type:'note', title: title||'Untitled note', text, audio:null, photos: state.draft.photos.map(p=>({id:p.id,dataUrl:p.dataUrl,caption:p.caption})), createdAt: new Date().toISOString() };
+      state.data.entries.push(entry);
+      const ok = await saveData();
+      if(!ok) showToast('Saved for this session (storage limit reached)');
+      closeModal();
+      setView('home');
+    });
+  }
+
+  /* ---- VOICE MODAL ---- */
+  const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
+  let recognizer = null, liveTranscript = '';
+
+  function renderVoiceModal(){
+    const d = state.draft;
+    modalRoot.innerHTML = `
+      <div class="modal-overlay" data-overlay-close role="dialog" aria-modal="true">
+        <div class="modal-box">
+          <div class="modal-head"><h3>Record a voice note</h3><button class="modal-close" data-close aria-label="Close">${ICONS.close}</button></div>
+          <div class="field"><label class="field-label">Title</label><input class="text-input" id="voice-title" placeholder="Give it a name..." value="${esc(d.title||'')}"></div>
+          <div class="field">
+            <label class="field-label">Recording</label>
+            <div class="row-flex">
+              <button class="ghost-btn ${d.recording?'rec-active':''}" id="rec-toggle">
+                ${d.recording ? ICONS.stop+' Stop' : ICONS.mic+' Record'}
+              </button>
+              ${d.recording ? `<span class="rec-timer" id="rec-timer">0:00</span>` : ''}
+            </div>
+            ${d.audioDataUrl ? `<audio class="audio-preview" controls src="${d.audioDataUrl}"></audio>` : ''}
+          </div>
+          <div class="field"><label class="field-label">Notes (optional)</label><textarea class="text-area" id="voice-text" placeholder="Any text to go with this...">${esc(d.text||'')}</textarea></div>
+          <div class="field">
+            <label class="field-label">Photo</label>
+            <button class="ghost-btn" id="voice-add-photo">${ICONS.image} Add photo</button>
+            <input type="file" accept="image/*" id="voice-photo-input" style="display:none">
+            ${photoStripHtml()}
+          </div>
+          <div class="modal-actions">
+            <button class="ghost-btn" data-close>Cancel</button>
+            <button class="primary-btn" id="voice-save" ${anyPhotoAnalyzing()?'disabled':''}>Save voice note</button>
+          </div>
+        </div>
+      </div>
+    `;
+    bindModalCommon();
+    bindPhotoStripEvents(renderVoiceModal);
+    $('#voice-add-photo').addEventListener('click', ()=> $('#voice-photo-input').click());
+    $('#voice-photo-input').addEventListener('change', e=>{
+      if(e.target.files[0]) addPhotoFromFile(e.target.files[0], renderVoiceModal);
+    });
+    if(d.recording){
+      let seconds = d.recSeconds||0;
+      d.recTimerHandle = setInterval(()=>{
+        seconds++; d.recSeconds=seconds;
+        const el = $('#rec-timer');
+        if(el) el.textContent = Math.floor(seconds/60)+':'+String(seconds%60).padStart(2,'0');
+      },1000);
+    }
+    $('#rec-toggle').addEventListener('click', async ()=>{
+      const titleVal = $('#voice-title').value;
+      const textVal = $('#voice-text').value;
+      d.text = textVal; d.title = titleVal;
+      if(!d.recording){
+        const ok = await startRecording();
+        if(!ok){ showToast('Microphone access denied or unavailable'); return; }
+        d.recording = true; d.recSeconds=0;
+        renderVoiceModal();
+      } else {
+        if(d.recTimerHandle) clearInterval(d.recTimerHandle);
+        const dataUrl = await stopRecording();
+        d.recording = false;
+        d.audioDataUrl = dataUrl;
+        d.transcript = liveTranscript.trim();
+        renderVoiceModal();
+      }
+    });
+    $('#voice-save').addEventListener('click', async ()=>{
+      const title = $('#voice-title').value.trim();
+      const text = $('#voice-text').value.trim();
+      if(!d.audioDataUrl && !text && !d.photos.length){ showToast('Record something or add a note first'); return; }
+      const entry = { id: d.id, type:'voice', title: title||'Untitled voice note', text, audio: d.audioDataUrl||null, transcript: d.transcript||'', photos: d.photos.map(p=>({id:p.id,dataUrl:p.dataUrl,caption:p.caption})), createdAt: new Date().toISOString() };
+      state.data.entries.push(entry);
+      const ok = await saveData();
+      if(!ok) showToast('Saved for this session (storage limit reached)');
+      closeModal();
+      setView('home');
+      if(entry.transcript) generateVoiceSummary(entry);
+    });
+  }
+
+  let mediaRecorder=null, audioChunks=[];
+  async function startRecording(){
+    try{
+      const stream = await navigator.mediaDevices.getUserMedia({audio:true});
+      state.draft.recordingStream = stream;
+      audioChunks = [];
+      liveTranscript = '';
+      mediaRecorder = new MediaRecorder(stream);
+      mediaRecorder.ondataavailable = e=>{ if(e.data.size>0) audioChunks.push(e.data); };
+      mediaRecorder.start();
+      if(SpeechRecognitionAPI){
+        recognizer = new SpeechRecognitionAPI();
+        recognizer.continuous = true;
+        recognizer.interimResults = false;
+        recognizer.lang = 'en-US';
+        recognizer.onresult = (e)=>{
+          for(let i=e.resultIndex; i<e.results.length; i++){
+            if(e.results[i].isFinal) liveTranscript += e.results[i][0].transcript + ' ';
+          }
+        };
+        recognizer.onerror = ()=>{};
+        try{ recognizer.start(); }catch(e){}
+      }
+      return true;
+    }catch(e){
+      console.error('mic error', e);
+      return false;
+    }
+  }
+  function stopRecording(){
+    return new Promise(resolve=>{
+      if(recognizer){ try{ recognizer.stop(); }catch(e){} }
+      if(!mediaRecorder){ resolve(null); return; }
+      mediaRecorder.onstop = ()=>{
+        const blob = new Blob(audioChunks, {type: mediaRecorder.mimeType || 'audio/webm'});
+        if(state.draft.recordingStream) state.draft.recordingStream.getTracks().forEach(t=>t.stop());
+        const reader = new FileReader();
+        reader.onloadend = ()=> resolve(reader.result);
+        reader.readAsDataURL(blob);
+      };
+      mediaRecorder.stop();
+    });
+  }
+
+  /* ---- SCREENSHOT MODAL ---- */
+  function renderScreenshotModal(){
+    const d = state.draft;
+    modalRoot.innerHTML = `
+      <div class="modal-overlay" data-overlay-close role="dialog" aria-modal="true">
+        <div class="modal-box">
+          <div class="modal-head"><h3>Take a screenshot</h3><button class="modal-close" data-close aria-label="Close">${ICONS.close}</button></div>
+          <div class="field">
+            <div class="capture-area" id="capture-area">
+              ${d.screenshotUrl ? `<img src="${d.screenshotUrl}">` : `<span class="capture-hint">No image captured yet</span>`}
+            </div>
+            <div class="row-flex" style="margin-top:10px;">
+              <button class="ghost-btn" id="capture-btn">${ICONS.camera} Capture screen</button>
+              <button class="ghost-btn" id="upload-btn">${ICONS.upload} Upload image</button>
+              <input type="file" accept="image/*" id="screenshot-file-input" style="display:none">
+            </div>
+            ${d.captionText ? `<div class="voice-time" style="margin-top:8px;font-style:italic;">${esc(d.captionText)}</div>` : ''}
+            ${d.analyzingShot ? `<div class="ai-loading">✨ Generating AI caption…</div>` : ''}
+          </div>
+          <div class="field"><label class="field-label">Title</label><input class="text-input" id="ss-title" placeholder="Give it a name..." value="${esc(d.title||'')}"></div>
+          <div class="field"><label class="field-label">Note (optional)</label><textarea class="text-area" id="ss-text" placeholder="What's this about?">${esc(d.text||'')}</textarea></div>
+          <div class="field">
+            <label class="field-label">Voice note (optional)</label>
+            <div class="row-flex">
+              <button class="ghost-btn ${d.recording?'rec-active':''}" id="ss-rec-toggle">${d.recording?ICONS.stop+' Stop':ICONS.mic+' Record'}</button>
+              ${d.recording ? `<span class="rec-timer" id="ss-rec-timer">0:00</span>` : ''}
+            </div>
+            ${d.audioDataUrl ? `<audio class="audio-preview" controls src="${d.audioDataUrl}"></audio>` : ''}
+          </div>
+          <div class="modal-actions">
+            <button class="ghost-btn" data-close>Cancel</button>
+            <button class="primary-btn" id="ss-save" ${d.analyzingShot?'disabled':''}>Save screenshot</button>
+          </div>
+        </div>
+      </div>
+    `;
+    bindModalCommon();
+    if(d.recording){
+      let seconds = d.recSeconds||0;
+      d.recTimerHandle = setInterval(()=>{
+        seconds++; d.recSeconds=seconds;
+        const el = $('#ss-rec-timer');
+        if(el) el.textContent = Math.floor(seconds/60)+':'+String(seconds%60).padStart(2,'0');
+      },1000);
+    }
+    $('#capture-btn').addEventListener('click', async ()=>{
+      d.title = $('#ss-title').value; d.text = $('#ss-text').value;
+      const url = await captureScreen();
+      if(!url){ showToast('Screen capture unavailable — try uploading an image instead'); return; }
+      d.screenshotUrl = url;
+      d.analyzingShot = true;
+      renderScreenshotModal();
+      d.captionText = await generateCaption(url);
+      d.analyzingShot = false;
+      renderScreenshotModal();
+    });
+    $('#upload-btn').addEventListener('click', ()=> $('#screenshot-file-input').click());
+    $('#screenshot-file-input').addEventListener('change', async e=>{
+      const file = e.target.files[0];
+      if(!file) return;
+      d.title = $('#ss-title').value; d.text = $('#ss-text').value;
+      const reader = new FileReader();
+      reader.onload = async ()=>{
+        d.screenshotUrl = reader.result;
+        d.analyzingShot = true;
+        renderScreenshotModal();
+        d.captionText = await generateCaption(reader.result);
+        d.analyzingShot = false;
+        renderScreenshotModal();
+      };
+      reader.readAsDataURL(file);
+    });
+    $('#ss-rec-toggle').addEventListener('click', async ()=>{
+      d.title = $('#ss-title').value; d.text = $('#ss-text').value;
+      if(!d.recording){
+        const ok = await startRecording();
+        if(!ok){ showToast('Microphone access denied or unavailable'); return; }
+        d.recording = true; d.recSeconds = 0;
+        renderScreenshotModal();
+      } else {
+        if(d.recTimerHandle) clearInterval(d.recTimerHandle);
+        const dataUrl = await stopRecording();
+        d.recording = false;
+        d.audioDataUrl = dataUrl;
+        renderScreenshotModal();
+      }
+    });
+    $('#ss-save').addEventListener('click', async ()=>{
+      const title = $('#ss-title').value.trim();
+      const text = $('#ss-text').value.trim();
+      if(!d.screenshotUrl){ showToast('Capture or upload an image first'); return; }
+      const entry = {
+        id: d.id, type:'screenshot', title: title||'Untitled screenshot', text,
+        audio: d.audioDataUrl||null,
+        photos:[{ id: uid(), dataUrl: d.screenshotUrl, caption: d.captionText||'' }],
+        createdAt: new Date().toISOString()
+      };
+      state.data.entries.push(entry);
+      const ok = await saveData();
+      if(!ok) showToast('Saved for this session (storage limit reached)');
+      closeModal();
+      setView('home');
+    });
+  }
+
+  async function captureScreen(){
+    try{
+      const stream = await navigator.mediaDevices.getDisplayMedia({video:true});
+      const track = stream.getVideoTracks()[0];
+      let dataUrl;
+      if('ImageCapture' in window){
+        const capture = new ImageCapture(track);
+        const bitmap = await capture.grabFrame();
+        const canvas = document.createElement('canvas');
+        canvas.width = bitmap.width; canvas.height = bitmap.height;
+        canvas.getContext('2d').drawImage(bitmap,0,0);
+        dataUrl = canvas.toDataURL('image/png');
+      } else {
+        const video = document.createElement('video');
+        video.srcObject = stream;
+        await video.play();
+        await new Promise(r=>setTimeout(r,250));
+        const canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+        canvas.getContext('2d').drawImage(video,0,0);
+        dataUrl = canvas.toDataURL('image/png');
+      }
+      stream.getTracks().forEach(t=>t.stop());
+      return dataUrl;
+    }catch(e){
+      console.error('screen capture failed', e);
+      return null;
+    }
+  }
+
+  /* ---- CHECKLIST MODAL ---- */
+  function renderChecklistModal(){
+    const d = state.draft;
+    if(!d.items) d.items = [{id:uid(),text:''},{id:uid(),text:''},{id:uid(),text:''}];
+    modalRoot.innerHTML = `
+      <div class="modal-overlay" data-overlay-close role="dialog" aria-modal="true">
+        <div class="modal-box">
+          <div class="modal-head"><h3>New checklist</h3><button class="modal-close" data-close aria-label="Close">${ICONS.close}</button></div>
+          <div class="field"><label class="field-label">Title</label><input class="text-input" id="cl-title" placeholder="Name this checklist..." value="${esc(d.title||'')}"></div>
+          <div class="field">
+            <label class="field-label">Steps</label>
+            <div id="cl-items">
+              ${d.items.map((it,i)=>`
+                <div class="checklist-editor-row" data-item-row="${it.id}">
+                  <input class="text-input" data-item-input="${it.id}" placeholder="Step ${i+1}..." value="${esc(it.text)}">
+                  <button class="icon-btn-sm" data-remove-item="${it.id}" aria-label="Remove step">${ICONS.close}</button>
+                </div>`).join('')}
+            </div>
+            <button class="ghost-btn" id="cl-add-item">${ICONS.plus} Add step</button>
+          </div>
+          <div class="modal-actions">
+            <button class="ghost-btn" data-close>Cancel</button>
+            <button class="primary-btn" id="cl-save">Save checklist</button>
+          </div>
+        </div>
+      </div>
+    `;
+    bindModalCommon();
+    function syncItemsFromDom(){
+      d.items.forEach(it=>{
+        const inp = modalRoot.querySelector(`[data-item-input="${it.id}"]`);
+        if(inp) it.text = inp.value;
+      });
+      d.title = $('#cl-title').value;
+    }
+    modalRoot.querySelectorAll('[data-remove-item]').forEach(el=>{
+      el.addEventListener('click', ()=>{
+        syncItemsFromDom();
+        d.items = d.items.filter(it=>it.id!==el.dataset.removeItem);
+        renderChecklistModal();
+      });
+    });
+    $('#cl-add-item').addEventListener('click', ()=>{
+      syncItemsFromDom();
+      d.items.push({id:uid(),text:''});
+      renderChecklistModal();
+      const inputs = modalRoot.querySelectorAll('[data-item-input]');
+      if(inputs.length) inputs[inputs.length-1].focus();
+    });
+    $('#cl-save').addEventListener('click', async ()=>{
+      syncItemsFromDom();
+      const title = d.title.trim();
+      const items = d.items.filter(it=>it.text.trim()).map(it=>({id:it.id, text:it.text.trim(), checked:false}));
+      if(!title || !items.length){ showToast('Add a title and at least one step'); return; }
+      const checklist = { id: d.id, title, items, createdAt: new Date().toISOString() };
+      state.data.checklists.push(checklist);
+      const ok = await saveData();
+      if(!ok) showToast('Saved for this session (storage limit reached)');
+      closeModal();
+      setView('home');
+    });
+  }
+
+  /* ============ SEARCH BAR ============ */
+  const searchInput = $('#search-input');
+  searchInput.addEventListener('input', ()=>{
+    const q = searchInput.value.trim();
+    if(q && state.view!=='search'){ state.prevView = state.view; }
+    state.searchQuery = q;
+    if(q){ state.view='search'; renderSearch(); }
+    else { setView(state.prevView||'home'); }
+  });
+
+  let searchRecognizer = null, listening=false;
+  const micBtn = $('#search-mic-btn');
+  if(SpeechRecognitionAPI){
+    searchRecognizer = new SpeechRecognitionAPI();
+    searchRecognizer.continuous = false;
+    searchRecognizer.interimResults = false;
+    searchRecognizer.onresult = (e)=>{
+      const transcript = e.results[0][0].transcript;
+      searchInput.value = transcript;
+      searchInput.dispatchEvent(new Event('input'));
+    };
+    searchRecognizer.onend = ()=>{ listening=false; micBtn.classList.remove('listening'); };
+    searchRecognizer.onerror = ()=>{ listening=false; micBtn.classList.remove('listening'); };
+  }
+  micBtn.addEventListener('click', ()=>{
+    if(!searchRecognizer){ showToast('Voice search is not supported in this browser'); return; }
+    if(listening){ searchRecognizer.stop(); listening=false; micBtn.classList.remove('listening'); return; }
+    try{ searchRecognizer.start(); listening=true; micBtn.classList.add('listening'); }catch(e){}
+  });
+
+  /* ============ SIDEBAR BINDINGS ============ */
+  document.querySelectorAll('.nav-item[data-view]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      searchInput.value=''; state.searchQuery='';
+      setView(btn.dataset.view);
+    });
+  });
+  document.querySelectorAll('.nav-item[data-open]').forEach(btn=>{
+    btn.addEventListener('click', ()=> openCreateModal(btn.dataset.open));
+  });
+
+  /* ============ FOCUS MODE ============ */
+  function fmtFocus(sec){
+    const m = Math.floor(sec/60), s = sec%60;
+    return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  }
+  function renderFocusPanel(){
+    focusRoot.innerHTML = `
+      <div class="focus-overlay" data-focus-overlay>
+        <div class="focus-panel" role="dialog" aria-modal="true" aria-label="Focus session">
+          <button class="focus-close" data-focus-close aria-label="Close">${ICONS.close}</button>
+          <div class="focus-mode-label">${focusState.mode==='work' ? 'Focus session' : 'Break'}</div>
+          <div class="focus-time">${fmtFocus(focusState.seconds)}</div>
+          <div class="focus-controls">
+            <button class="focus-start" id="focus-start-btn" aria-label="${focusState.running?'Pause':'Start'}">
+              ${focusState.running ? ICONS.pause : ICONS.play}
+            </button>
+          </div>
+          <button class="focus-reset" id="focus-reset-btn">Reset</button>
+        </div>
+      </div>
+    `;
+    $('#focus-start-btn').addEventListener('click', toggleFocusRun);
+    $('#focus-reset-btn').addEventListener('click', resetFocus);
+    focusRoot.querySelector('[data-focus-close]').addEventListener('click', closeFocusPanel);
+    focusRoot.querySelector('[data-focus-overlay]').addEventListener('click', e=>{
+      if(e.target === focusRoot.querySelector('[data-focus-overlay]')) closeFocusPanel();
+    });
+  }
+  function closeFocusPanel(){ focusRoot.innerHTML=''; }
+  function updateFocusChip(){
+    const chip = $('#focus-chip');
+    const label = $('#focus-chip-label');
+    if(focusState.running){
+      chip.classList.add('running');
+      label.textContent = fmtFocus(focusState.seconds);
+    } else {
+      chip.classList.remove('running');
+      label.textContent = 'Focus';
+    }
+  }
+  function toggleFocusRun(){
+    focusState.running = !focusState.running;
+    if(focusState.running){
+      focusState.handle = setInterval(()=>{
+        focusState.seconds--;
+        if(focusState.seconds<=0){
+          focusState.mode = focusState.mode==='work' ? 'break' : 'work';
+          focusState.seconds = focusState.mode==='work' ? 25*60 : 5*60;
+          showToast(focusState.mode==='break' ? 'Nice work — take a short break' : 'Break is over, back to it');
+        }
+        updateFocusChip();
+        if(focusRoot.querySelector('.focus-panel')) renderFocusPanel();
+      },1000);
+    } else {
+      clearInterval(focusState.handle);
+    }
+    updateFocusChip();
+    renderFocusPanel();
+  }
+  function resetFocus(){
+    clearInterval(focusState.handle);
+    focusState.running = false;
+    focusState.mode = 'work';
+    focusState.seconds = 25*60;
+    updateFocusChip();
+    renderFocusPanel();
+  }
+  $('#focus-chip').addEventListener('click', renderFocusPanel);
+
+  /* ============ INIT ============ */
+  async function init(){
+    updateClock();
+    setInterval(updateClock, 1000);
+    setInterval(updateGreeting, 60000);
+    await loadTheme();
+    await loadData();
+    render();
+  }
+  init();
+
+})();
+</script>
+</body>
+</html>
