@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-labelledby="title desc">
+  <title id="title">Fictional Goa return flight itinerary</title>
+  <desc id="desc">An original travel itinerary card for a Goa trip from 12 to 16 December 2026.</desc>
+  <rect width="1200" height="800" fill="#0c0d0f"/>
+  <rect x="74" y="68" width="1052" height="664" rx="14" fill="#17191c" stroke="#34373c" stroke-width="2"/>
+  <rect x="74" y="68" width="1052" height="82" rx="14" fill="#f3f3ef"/>
+  <rect x="74" y="136" width="1052" height="14" fill="#f3f3ef"/>
+  <circle cx="119" cy="109" r="16" fill="#ff2a1f"/>
+  <text x="151" y="119" fill="#111215" font-family="monospace" font-size="25" letter-spacing="5">COASTLINE AIR — TRIP ITINERARY</text>
+  <text x="1110" y="118" text-anchor="end" fill="#5d626a" font-family="monospace" font-size="17">FICTIONAL DEMO</text>
+  <text x="122" y="231" fill="#888d95" font-family="monospace" font-size="16" letter-spacing="3">DESTINATION</text>
+  <text x="122" y="300" fill="#f4f4f1" font-family="monospace" font-size="66">GOA</text>
+  <text x="680" y="231" fill="#888d95" font-family="monospace" font-size="16" letter-spacing="3">DATES</text>
+  <text x="680" y="286" fill="#f4f4f1" font-family="monospace" font-size="34">12—16 DEC 2026</text>
+  <line x1="122" y1="354" x2="1078" y2="354" stroke="#34373c" stroke-width="2" stroke-dasharray="7 9"/>
+  <text x="122" y="412" fill="#888d95" font-family="monospace" font-size="16" letter-spacing="3">OUTBOUND</text>
+  <text x="122" y="462" fill="#f4f4f1" font-family="monospace" font-size="25">12 DEC · 08:20</text>
+  <text x="485" y="462" fill="#ff2a1f" font-family="monospace" font-size="24">→</text>
+  <text x="558" y="462" fill="#f4f4f1" font-family="monospace" font-size="25">GOI · 09:45</text>
+  <text x="122" y="526" fill="#888d95" font-family="monospace" font-size="16" letter-spacing="3">RETURN</text>
+  <text x="122" y="576" fill="#f4f4f1" font-family="monospace" font-size="25">16 DEC · 19:10</text>
+  <text x="485" y="576" fill="#ff2a1f" font-family="monospace" font-size="24">→</text>
+  <text x="558" y="576" fill="#f4f4f1" font-family="monospace" font-size="25">HOME · 20:35</text>
+  <rect x="840" y="402" width="238" height="174" rx="10" fill="#202226"/>
+  <text x="865" y="441" fill="#888d95" font-family="monospace" font-size="14" letter-spacing="2">TOTAL FARE</text>
+  <text x="865" y="496" fill="#ffffff" font-family="monospace" font-size="34">₹8,420</text>
+  <text x="865" y="541" fill="#58b77e" font-family="monospace" font-size="15">RETURN BOOKED ✓</text>
+  <text x="122" y="665" fill="#888d95" font-family="monospace" font-size="15">NEXT: SHORTLIST 3 BEACH STAYS UNDER ₹7,000 / NIGHT</text>
+</svg>

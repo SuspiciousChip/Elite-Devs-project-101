@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-labelledby="title desc">
+  <title id="title">Black and white AeroRun X1 running shoes</title>
+  <desc id="desc">A clean product illustration of two black and white running shoes on a dark studio surface.</desc>
+  <rect width="1200" height="800" fill="#101113"/>
+  <circle cx="980" cy="116" r="76" fill="#ff2a1f"/>
+  <text x="74" y="96" fill="#f5f5f2" font-family="monospace" font-size="30" letter-spacing="7">AERORUN X1</text>
+  <text x="76" y="140" fill="#8d8f94" font-family="monospace" font-size="18" letter-spacing="3">LIGHTWEIGHT DAILY RUNNER</text>
+  <ellipse cx="604" cy="650" rx="430" ry="54" fill="#050506"/>
+  <g transform="translate(130 174) rotate(-7 480 220)">
+    <path d="M76 348c74-18 143-42 210-102l98-92c28-26 66-35 102-21l117 46c46 18 93 31 142 40l102 19c41 8 70 43 70 85v29H94c-31 0-40-6-18-4z" fill="#f0f0ed"/>
+    <path d="M288 246l94-90c28-27 65-35 102-22l113 43-97 103-154 10z" fill="#dadbd8"/>
+    <path d="M500 280l98-102c43 17 86 29 132 38l-54 89z" fill="#202226"/>
+    <path d="M93 326h824v49H106c-34 0-53-17-47-31 5-11 15-17 34-18z" fill="#ffffff"/>
+    <path d="M124 375h782c-16 40-49 58-99 58H202c-49 0-75-19-78-58z" fill="#1b1c1f"/>
+    <path d="M308 226l224 20" stroke="#111215" stroke-width="18" stroke-linecap="round"/>
+    <path d="M332 197l217 20M359 169l205 21M389 143l185 22" stroke="#595c61" stroke-width="9" stroke-linecap="round"/>
+    <path d="M751 226l72 15c39 8 66 42 66 82H693z" fill="#0a0a0b"/>
+    <path d="M174 299c60-17 107-40 151-74l35 65-156 34z" fill="#282a2e"/>
+  </g>
+  <g transform="translate(440 418) scale(.64) rotate(8 480 220)" opacity=".72">
+    <path d="M76 348c74-18 143-42 210-102l98-92c28-26 66-35 102-21l117 46c46 18 93 31 142 40l102 19c41 8 70 43 70 85v29H94c-31 0-40-6-18-4z" fill="#d6d7d4"/>
+    <path d="M288 246l94-90c28-27 65-35 102-22l113 43-97 103-154 10z" fill="#bfc1be"/>
+    <path d="M500 280l98-102c43 17 86 29 132 38l-54 89z" fill="#18191c"/>
+    <path d="M93 326h824v49H106c-34 0-53-17-47-31 5-11 15-17 34-18z" fill="#ffffff"/>
+    <path d="M124 375h782c-16 40-49 58-99 58H202c-49 0-75-19-78-58z" fill="#111215"/>
+  </g>
+  <rect x="74" y="688" width="1052" height="1" fill="#2c2e32"/>
+  <text x="76" y="740" fill="#f5f5f2" font-family="monospace" font-size="25">₹6,499</text>
+  <text x="1045" y="740" text-anchor="end" fill="#a8aaae" font-family="monospace" font-size="20">UK 9 · 4.5/5</text>
+</svg>

@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-labelledby="title desc">
+  <title id="title">Research article about memory and context</title>
+  <desc id="desc">A fictional saved article page describing why source context improves personal recall.</desc>
+  <rect width="1200" height="800" fill="#0c0d0f"/>
+  <rect x="110" y="56" width="980" height="688" rx="12" fill="#f1f1ed"/>
+  <rect x="110" y="56" width="980" height="58" rx="12" fill="#1a1b1e"/>
+  <rect x="110" y="102" width="980" height="12" fill="#1a1b1e"/>
+  <circle cx="148" cy="85" r="7" fill="#ff2a1f"/><circle cx="174" cy="85" r="7" fill="#62666d"/><circle cx="200" cy="85" r="7" fill="#62666d"/>
+  <text x="1050" y="91" text-anchor="end" fill="#a3a6ac" font-family="monospace" font-size="14">RESEARCH / SAVED</text>
+  <text x="170" y="182" fill="#ff2a1f" font-family="monospace" font-size="15" letter-spacing="3">HUMAN-COMPUTER INTERACTION</text>
+  <text x="170" y="250" fill="#17181a" font-family="monospace" font-size="42">Why source context makes</text>
+  <text x="170" y="304" fill="#17181a" font-family="monospace" font-size="42">digital memory trustworthy</text>
+  <text x="170" y="354" fill="#696b70" font-family="monospace" font-size="17">A field note on retrieval, provenance, and confidence.</text>
+  <line x1="170" y1="398" x2="1030" y2="398" stroke="#d0d0cb"/>
+  <text x="170" y="447" fill="#34363a" font-family="monospace" font-size="18">People trust a recalled answer more when they can inspect</text>
+  <text x="170" y="481" fill="#34363a" font-family="monospace" font-size="18">the original screenshot, note, or recording that supports it.</text>
+  <rect x="170" y="526" width="540" height="122" rx="8" fill="#deded9"/>
+  <rect x="195" y="551" width="182" height="14" rx="7" fill="#a3a5a4"/>
+  <rect x="195" y="581" width="452" height="10" rx="5" fill="#b9bbb8"/>
+  <rect x="195" y="607" width="376" height="10" rx="5" fill="#b9bbb8"/>
+  <rect x="754" y="526" width="276" height="122" rx="8" fill="#17181a"/>
+  <text x="782" y="567" fill="#8d9096" font-family="monospace" font-size="13" letter-spacing="2">KEY FINDING</text>
+  <text x="782" y="606" fill="#f4f4f1" font-family="monospace" font-size="18">Evidence before</text>
+  <text x="782" y="633" fill="#f4f4f1" font-family="monospace" font-size="18">confidence.</text>
+  <text x="170" y="700" fill="#808287" font-family="monospace" font-size="14">Saved 3 days ago · 6 min read</text>
+</svg>
