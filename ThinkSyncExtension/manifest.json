@@ -1,0 +1,13 @@
+{
+  "manifest_version": 3,
+  "name": "ThinkSync",
+  "version": "1.0",
+  "description": "Opens ThinkSync in a new tab.",
+  "action": {
+    "default_title": "Open ThinkSync"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "permissions": []
+}
